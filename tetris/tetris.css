@@ -1,0 +1,320 @@
+/* 테트리미노 디자인 */
+
+/* .tetris_board {
+  width: 100%;
+  height: calc(100% - 100% / 6);
+  position: relative;
+  top: -10px;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+} */
+
+.grid_unit {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+.tetrimino {
+  transition: none;
+}
+
+.i_mino {
+  border: 2px solid rgb(34, 123, 150);
+  background-color: rgb(69, 202, 243);
+}
+
+.o_mino {
+  border: 2px solid rgb(207, 205, 39);
+  background-color: rgb(255, 252, 52);
+}
+
+.s_mino {
+  border: 2px solid rgb(64, 128, 28);
+  background-color: rgb(122, 228, 61);
+}
+
+.z_mino {
+  border: 2px solid rgb(156, 23, 41);
+  background-color: rgb(216, 63, 83);
+}
+
+.l_mino {
+  border: 2px solid rgb(160, 95, 16);
+  background-color: rgb(255, 153, 21);
+}
+
+.j_mino {
+  border: 2px solid rgb(30, 60, 141);
+  background-color: rgb(22, 84, 255);
+}
+
+.t_mino {
+  border: 2px solid rgb(97, 26, 129);
+  background-color: rgb(161, 34, 219);
+}
+
+/* 배경 디자인 */
+main {
+  width: 100vw;
+  height: 100vh;
+  background-color: rgb(106, 99, 124);
+  padding: 5lvh 5lvw;
+  margin: 0;
+}
+
+.game_ground {
+  width: 100%;
+  max-width: 1280px;
+  height: 100%;
+  /* border: 1px solid black; */
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  gap: 1lvw;
+  margin: 0 auto;
+  /* pointer-events: none; */
+}
+
+.blank {
+  width: 30%;
+  min-width: 0px;
+  max-width: 400px;
+  /* border: 1px solid black; */
+}
+
+.game {
+  width: 100%;
+  min-width: 400px;
+  max-width: 500px;
+  height: 100%;
+  /* border: 1px solid black; */
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  position: relative;
+  pointer-events: none;
+}
+
+.hold_mino {
+  color: white;
+  font-size: 16px;
+  height: calc((90% / 6) * 0.8);
+  aspect-ratio: 4 / 3;
+  border: 5px solid white;
+  border-radius: 20px;
+  letter-spacing: 0.2em;
+  background-color: black;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  position: absolute;
+  top: calc((90% / 6) * 0.1);
+  padding: 5px;
+  gap: 5px;
+  z-index: 1;
+}
+
+.mino_case {
+  width: 100%;
+  height: 100%;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.main_board {
+  height: 90%;
+  aspect-ratio: 10 / 24;
+  /* border: 1px solid black; */
+  border-radius: 30px 30px 0 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.main_board::before {
+  content: "";
+  width: 100%;
+  height: calc(100% / 6 + 10px);
+  border-radius: 30px 30px 0 0;
+  background: linear-gradient(rgb(3, 202, 186), transparent);
+  display: block;
+  position: relative;
+}
+
+.main_board::after {
+  content: "";
+  width: 100%;
+  height: 30px;
+  background-color: black;
+  position: absolute;
+  bottom: -30px;
+}
+
+.board_wing {
+  width: 7%;
+  min-width: 30px;
+  height: calc(90% - 90% / 6 + 30px);
+  background-color: black;
+  position: relative;
+  top: calc(90% / 6);
+}
+
+.left_wing {
+  border-radius: 30px 0 0 30px;
+}
+
+.right_wing {
+  border-radius: 0 30px 30px 0;
+}
+
+.tetris_board {
+  width: 100%;
+  height: calc(100% - 100% / 6);
+  position: relative;
+  top: -10px;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+}
+
+.tetris_board > .temp {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 2px solid gray;
+}
+
+.tetris_board > .temp:nth-child(124) {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 2px solid rgb(97, 26, 129);
+  background-color: rgb(161, 34, 219);
+}
+
+.infos {
+  width: 30%;
+  min-width: 200px;
+  max-width: 400px;
+  height: 100%;
+  /* border: 1px solid black; */
+  /* pointer-events: none; */
+}
+
+.next_minos {
+  width: 40%;
+  min-width: fit-content;
+  height: 60%;
+  /* border: 1px solid black; */
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  gap: 3lvh;
+  pointer-events: none;
+}
+
+.leftshift_container {
+  width: 100%;
+  height: 22%;
+}
+
+.next_mino {
+  color: white;
+  font-size: 16px;
+  height: 100%;
+  aspect-ratio: 4 / 3;
+  border: 5px solid white;
+  border-radius: 20px;
+  letter-spacing: 0.2em;
+  background-color: black;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  padding: 5px;
+  gap: 5px;
+}
+
+.rightshift_container {
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: end;
+}
+
+.further_next {
+  color: white;
+  width: 13lvh;
+  height: fit-content;
+  border: 5px solid white;
+  border-radius: 20px;
+  background-color: black;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  gap: 5px;
+}
+
+.further_next_mino {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.further_next > .temp {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.score_board {
+  color: black;
+  font-size: 16px;
+  width: 80%;
+  min-width: 200px;
+  height: fit-content;
+  border: 5px solid rgb(3, 202, 186);
+  border-radius: 20px;
+  text-align: center;
+  letter-spacing: 0.2em;
+  background-color: white;
+  padding: 5px;
+  /* pointer-events: none; */
+}
+
+/* 기타 시스템 UI */
+
+.start_btn {
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  border: 3px solid rgb(3, 202, 186);
+  background-color: rgba(72, 13, 87, 0.4);
+  border-radius: 20px;
+  padding: 10px 20px;
+  position: absolute;
+  top: calc(50% - 30px);
+  left: calc(50% - 90px);
+  cursor: pointer;
+}
+
+.count_down_num {
+  color: rgb(16, 247, 227);
+  font-size: 200px;
+  font-weight: bolder;
+  position: absolute;
+  top: calc(50% - 0.7em);
+  left: calc(50% - 0.25em);
+  transition: all 0.5s;
+}
+
+.count_down_animation {
+  font-size: 80px;
+}
