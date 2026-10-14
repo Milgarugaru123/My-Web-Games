@@ -26,7 +26,7 @@ const gamePreview = () => {
 
 const gameStart = () => {
   takeoutNext();
-  rendHold();
+  gameData.gameSpeed = gameData.initGameSpeed;
   console.log(gameData);
 };
 

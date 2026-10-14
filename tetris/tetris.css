@@ -112,7 +112,7 @@ main {
   top: calc((90% / 6) * 0.1);
   padding: 5px;
   gap: 5px;
-  z-index: 1;
+  z-index: 3;
 }
 
 .mino_case {
@@ -141,6 +141,7 @@ main {
   background: linear-gradient(rgb(3, 202, 186), transparent);
   display: block;
   position: relative;
+  z-index: 2;
 }
 
 .main_board::after {

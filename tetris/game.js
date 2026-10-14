@@ -7,32 +7,38 @@ import {
   refillBag,
 } from "./mino_datas.js";
 
+const keyDatas = {
+  spinLeft: `s`,
+  spinRight: `d`,
+  hold: `Shift`,
+};
+
 export const gameData = {
   isPlaying: false,
   highscore: 0,
   score: 0,
-  timer: 0,
+  gameSpeed: 0,
+  initGameSpeed: 1000,
   curMino: undefined,
-  minoPos: undefined,
+  minoPos: {
+    spinPos: undefined,
+    rend1: undefined,
+    rend2: undefined,
+    rend3: undefined,
+  },
   minoSpin: 0, // 0 : default, 1 : 90deg, 2 : 180deg, 3: 270deg
   holdMino: undefined,
   holdDone: false,
   bottomDelay: 0,
   minoIntervalID: undefined,
 };
-export const gameGridData = new Array(20).fill(0).map((row) => {
+export const gameGridData = new Array(24).fill(0).map((row) => {
   return Array(10)
     .fill(0)
     .map((grid) => {
       return { mino: undefined, isMoving: false };
     });
 });
-
-const keyDatas = {
-  spinLeft: `s`,
-  spinRight: `d`,
-  hold: `Shift`,
-};
 
 export const rendNext = () => {
   nextCase.innerHTML = ``;
@@ -57,8 +63,204 @@ export const rendHold = () => {
   holdCase.appendChild(makeMino(gameData.holdMino));
 };
 
-/* 미노 회전축 스폰 위치 기준점 = gridDatas[0][4] */
-const minoSpawn = () => {};
+const rendBoard = () => {
+  if (!gameData.isPlaying) return;
+  Array(20)
+    .fill(0)
+    .forEach((x, row) => {
+      Array(10)
+        .fill(0)
+        .forEach((y, grid) => {
+          gridDatas[row][grid].classList.remove(minoDatas[0].color);
+          gridDatas[row][grid].classList.remove(minoDatas[1].color);
+          gridDatas[row][grid].classList.remove(minoDatas[2].color);
+          gridDatas[row][grid].classList.remove(minoDatas[3].color);
+          gridDatas[row][grid].classList.remove(minoDatas[4].color);
+          gridDatas[row][grid].classList.remove(minoDatas[5].color);
+          gridDatas[row][grid].classList.remove(minoDatas[6].color);
+          switch (gameGridData[row + 4][grid].mino) {
+            case minoDatas[0].name:
+              gridDatas[row][grid].classList.add(minoDatas[0].color);
+              break;
+
+            case minoDatas[1].name:
+              gridDatas[row][grid].classList.add(minoDatas[1].color);
+              break;
+
+            case minoDatas[2].name:
+              gridDatas[row][grid].classList.add(minoDatas[2].color);
+              break;
+
+            case minoDatas[3].name:
+              gridDatas[row][grid].classList.add(minoDatas[3].color);
+              break;
+
+            case minoDatas[4].name:
+              gridDatas[row][grid].classList.add(minoDatas[4].color);
+              break;
+
+            case minoDatas[5].name:
+              gridDatas[row][grid].classList.add(minoDatas[5].color);
+              break;
+
+            case minoDatas[6].name:
+              gridDatas[row][grid].classList.add(minoDatas[6].color);
+              break;
+
+            default:
+              break;
+          }
+        });
+    });
+};
+
+const minoOffGrid = (row, grid) => {
+  gameGridData[row + 4][grid].mino = undefined;
+  gameGridData[row + 4][grid].isMoving = false;
+};
+
+const minoRemovePrev = () => {
+  if (!gameData.minoPos.spinPos) return;
+  minoOffGrid(gameData.minoPos.spinPos.row, gameData.minoPos.spinPos.grid);
+  minoOffGrid(gameData.minoPos.rend1.row, gameData.minoPos.rend1.grid);
+  minoOffGrid(gameData.minoPos.rend2.row, gameData.minoPos.rend2.grid);
+  minoOffGrid(gameData.minoPos.rend3.row, gameData.minoPos.rend3.grid);
+};
+
+const minoOnGrid = (row, grid) => {
+  gameGridData[row + 4][grid].mino = gameData.curMino;
+  gameGridData[row + 4][grid].isMoving = true;
+};
+
+const rendMino = () => {
+  minoOnGrid(gameData.minoPos.spinPos.row, gameData.minoPos.spinPos.grid);
+  minoOnGrid(gameData.minoPos.rend1.row, gameData.minoPos.rend1.grid);
+  minoOnGrid(gameData.minoPos.rend2.row, gameData.minoPos.rend2.grid);
+  minoOnGrid(gameData.minoPos.rend3.row, gameData.minoPos.rend3.grid);
+  rendBoard();
+};
+
+const setMinoRendGrids = () => {
+  const spinPos = gameData.minoPos.spinPos;
+  switch (gameData.curMino) {
+    case minoDatas[0].name:
+      gameData.minoPos.rend1 = {
+        row: +spinPos.row,
+        grid: +spinPos.grid - 1,
+      };
+      gameData.minoPos.rend2 = {
+        row: +spinPos.row,
+        grid: +spinPos.grid + 1,
+      };
+      gameData.minoPos.rend3 = {
+        row: +spinPos.row,
+        grid: +spinPos.grid + 2,
+      };
+      break;
+
+    case minoDatas[1].name:
+      gameData.minoPos.rend1 = {
+        row: +spinPos.row,
+        grid: +spinPos.grid + 1,
+      };
+      gameData.minoPos.rend2 = {
+        row: +spinPos.row - 1,
+        grid: +spinPos.grid,
+      };
+      gameData.minoPos.rend3 = {
+        row: +spinPos.row - 1,
+        grid: +spinPos.grid + 1,
+      };
+      break;
+
+    case minoDatas[2].name:
+      gameData.minoPos.rend1 = {
+        row: +spinPos.row,
+        grid: +spinPos.grid - 1,
+      };
+      gameData.minoPos.rend2 = {
+        row: +spinPos.row - 1,
+        grid: +spinPos.grid,
+      };
+      gameData.minoPos.rend3 = {
+        row: +spinPos.row - 1,
+        grid: +spinPos.grid + 1,
+      };
+      break;
+
+    case minoDatas[3].name:
+      gameData.minoPos.rend1 = {
+        row: +spinPos.row - 1,
+        grid: +spinPos.grid - 1,
+      };
+      gameData.minoPos.rend2 = {
+        row: +spinPos.row - 1,
+        grid: +spinPos.grid,
+      };
+      gameData.minoPos.rend3 = {
+        row: +spinPos.row,
+        grid: +spinPos.grid + 1,
+      };
+      break;
+
+    case minoDatas[4].name:
+      gameData.minoPos.rend1 = {
+        row: +spinPos.row,
+        grid: +spinPos.grid - 1,
+      };
+      gameData.minoPos.rend2 = {
+        row: +spinPos.row,
+        grid: +spinPos.grid + 1,
+      };
+      gameData.minoPos.rend3 = {
+        row: +spinPos.row - 1,
+        grid: +spinPos.grid + 1,
+      };
+      break;
+
+    case minoDatas[5].name:
+      gameData.minoPos.rend1 = {
+        row: +spinPos.row - 1,
+        grid: +spinPos.grid - 1,
+      };
+      gameData.minoPos.rend2 = {
+        row: +spinPos.row,
+        grid: +spinPos.grid - 1,
+      };
+      gameData.minoPos.rend3 = {
+        row: +spinPos.row,
+        grid: +spinPos.grid + 1,
+      };
+      break;
+
+    case minoDatas[6].name:
+      gameData.minoPos.rend1 = {
+        row: +spinPos.row - 1,
+        grid: +spinPos.grid - 1,
+      };
+      gameData.minoPos.rend2 = {
+        row: +spinPos.row - 1,
+        grid: +spinPos.grid,
+      };
+      gameData.minoPos.rend3 = {
+        row: +spinPos.row - 1,
+        grid: +spinPos.grid + 1,
+      };
+      break;
+
+    default:
+      break;
+  }
+};
+
+/* 미노 회전축 스폰 위치 기준점 = gridDatas[0][4] (gameGridData[4][4]) */
+/* gameGridData = { mino: undefined, isMoving: false } */
+const minoSpawn = () => {
+  minoRemovePrev();
+  gameData.minoPos.spinPos = { row: 0, grid: 4 };
+  setMinoRendGrids();
+  rendMino();
+};
 
 export const takeoutNext = () => {
   refillBag();
@@ -78,6 +280,7 @@ const changeHold = () => {
     const tempMino = gameData.holdMino;
     gameData.holdMino = gameData.curMino;
     gameData.curMino = tempMino;
+    minoSpawn();
   }
   rendHold();
   console.log(gameData);
@@ -85,13 +288,52 @@ const changeHold = () => {
 
 export const minoDrop = () => {};
 
-const keyPressDown = () => {};
-const keyPressLeft = () => {};
-const keyPressRight = () => {};
+const keyPressDown = () => {
+  if (gameData.minoPos.spinPos.row >= 19) return;
+  minoRemovePrev();
+  gameData.minoPos.spinPos = {
+    row: gameData.minoPos.spinPos.row + 1,
+    grid: gameData.minoPos.spinPos.grid,
+  };
+  setMinoRendGrids();
+  rendMino();
+};
+const keyPressLeft = () => {
+  if (gameData.minoPos.spinPos.grid <= 0) return;
+  minoRemovePrev();
+  gameData.minoPos.spinPos = {
+    row: gameData.minoPos.spinPos.row,
+    grid: gameData.minoPos.spinPos.grid - 1,
+  };
+  setMinoRendGrids();
+  rendMino();
+};
+const keyPressRight = () => {
+  if (gameData.minoPos.spinPos.grid >= 9) return;
+  minoRemovePrev();
+  gameData.minoPos.spinPos = {
+    row: gameData.minoPos.spinPos.row,
+    grid: gameData.minoPos.spinPos.grid + 1,
+  };
+  setMinoRendGrids();
+  rendMino();
+};
 const keyPressSpacebar = () => {};
 
-const spinLeft = () => {};
-const spinRight = () => {};
+const spinLeft = () => {
+  minoRemovePrev();
+  gameData.minoPos.minoSpin =
+    gameData.minoPos.minoSpin === 0 ? 3 : gameData.minoPos.minoSpin - 1;
+  setMinoRendGrids();
+  rendMino();
+};
+const spinRight = () => {
+  minoRemovePrev();
+  gameData.minoPos.minoSpin =
+    gameData.minoPos.minoSpin === 3 ? 0 : gameData.minoPos.minoSpin + 1;
+  setMinoRendGrids();
+  rendMino();
+};
 
 document.addEventListener(`keydown`, (e) => {
   // console.log(e.keyCode);
