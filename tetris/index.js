@@ -12,7 +12,6 @@ import {
   gameData,
   gameGridData,
   takeoutNext,
-  minoDrop,
 } from "./game.js";
 import "./query.js";
 import "./mino_datas.js";

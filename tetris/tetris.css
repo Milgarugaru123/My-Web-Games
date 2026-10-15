@@ -314,6 +314,7 @@ main {
   top: calc(50% - 0.7em);
   left: calc(50% - 0.25em);
   transition: all 0.5s;
+  pointer-events: none;
 }
 
 .count_down_animation {
