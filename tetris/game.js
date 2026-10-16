@@ -517,16 +517,16 @@ const minoDrop = () => {
 };
 const keyPressSpacebar = () => {
   minoDrop();
-  gameGridData[gameData.minoPos.spinPos.row][
+  gameGridData[gameData.minoPos.spinPos.row + 4][
     gameData.minoPos.spinPos.grid
   ].isMoving = false;
-  gameGridData[gameData.minoPos.rend1.row][
+  gameGridData[gameData.minoPos.rend1.row + 4][
     gameData.minoPos.rend1.grid
   ].isMoving = false;
-  gameGridData[gameData.minoPos.rend2.row][
+  gameGridData[gameData.minoPos.rend2.row + 4][
     gameData.minoPos.rend2.grid
   ].isMoving = false;
-  gameGridData[gameData.minoPos.rend3.row][
+  gameGridData[gameData.minoPos.rend3.row + 4][
     gameData.minoPos.rend3.grid
   ].isMoving = false;
   gameData.minoPos.spinPos = undefined;
