@@ -142,119 +142,460 @@ const rendMino = () => {
 
 const setMinoRendGrids = () => {
   const spinPos = gameData.minoPos.spinPos;
-  switch (gameData.curMino) {
-    case minoDatas[0].name:
-      gameData.minoPos.rend1 = {
-        row: spinPos.row,
-        grid: spinPos.grid - 1,
-      };
-      gameData.minoPos.rend2 = {
-        row: spinPos.row,
-        grid: spinPos.grid + 1,
-      };
-      gameData.minoPos.rend3 = {
-        row: spinPos.row,
-        grid: spinPos.grid + 2,
-      };
+  switch (gameData.minoSpin) {
+    case 0:
+      switch (gameData.curMino) {
+        case minoDatas[0].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row,
+            grid: spinPos.grid + 1,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row,
+            grid: spinPos.grid + 2,
+          };
+          break;
+
+        case minoDatas[1].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row,
+            grid: spinPos.grid + 1,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid + 1,
+          };
+          break;
+
+        case minoDatas[2].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid + 1,
+          };
+          break;
+
+        case minoDatas[3].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row,
+            grid: spinPos.grid + 1,
+          };
+          break;
+
+        case minoDatas[4].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row,
+            grid: spinPos.grid + 1,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid + 1,
+          };
+          break;
+
+        case minoDatas[5].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row,
+            grid: spinPos.grid + 1,
+          };
+          break;
+
+        case minoDatas[6].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row,
+            grid: spinPos.grid + 1,
+          };
+          break;
+
+        default:
+          break;
+      }
       break;
 
-    case minoDatas[1].name:
-      gameData.minoPos.rend1 = {
-        row: spinPos.row,
-        grid: spinPos.grid + 1,
-      };
-      gameData.minoPos.rend2 = {
-        row: spinPos.row - 1,
-        grid: spinPos.grid,
-      };
-      gameData.minoPos.rend3 = {
-        row: spinPos.row - 1,
-        grid: spinPos.grid + 1,
-      };
+    case 1:
+      switch (gameData.curMino) {
+        case minoDatas[0].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row + 2,
+            grid: spinPos.grid,
+          };
+          break;
+
+        case minoDatas[1].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row,
+            grid: spinPos.grid + 1,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid + 1,
+          };
+          break;
+
+        case minoDatas[2].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row,
+            grid: spinPos.grid + 1,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid + 1,
+          };
+          break;
+
+        case minoDatas[3].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid - 1,
+          };
+          break;
+
+        case minoDatas[4].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid + 1,
+          };
+          break;
+
+        case minoDatas[5].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid + 1,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid,
+          };
+          break;
+
+        case minoDatas[6].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid,
+          };
+          break;
+
+        default:
+          break;
+      }
       break;
 
-    case minoDatas[2].name:
-      gameData.minoPos.rend1 = {
-        row: spinPos.row,
-        grid: spinPos.grid - 1,
-      };
-      gameData.minoPos.rend2 = {
-        row: spinPos.row - 1,
-        grid: spinPos.grid,
-      };
-      gameData.minoPos.rend3 = {
-        row: spinPos.row - 1,
-        grid: spinPos.grid + 1,
-      };
+    case 2:
+      switch (gameData.curMino) {
+        case minoDatas[0].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row,
+            grid: spinPos.grid - 2,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row,
+            grid: spinPos.grid + 1,
+          };
+          break;
+
+        case minoDatas[1].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid,
+          };
+          break;
+
+        case minoDatas[2].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row,
+            grid: spinPos.grid + 1,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid,
+          };
+          break;
+
+        case minoDatas[3].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid + 1,
+          };
+          break;
+
+        case minoDatas[4].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row,
+            grid: spinPos.grid + 1,
+          };
+          break;
+
+        case minoDatas[5].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row,
+            grid: spinPos.grid + 1,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid + 1,
+          };
+          break;
+
+        case minoDatas[6].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row,
+            grid: spinPos.grid + 1,
+          };
+          break;
+
+        default:
+          break;
+      }
       break;
 
-    case minoDatas[3].name:
-      gameData.minoPos.rend1 = {
-        row: spinPos.row - 1,
-        grid: spinPos.grid - 1,
-      };
-      gameData.minoPos.rend2 = {
-        row: spinPos.row - 1,
-        grid: spinPos.grid,
-      };
-      gameData.minoPos.rend3 = {
-        row: spinPos.row,
-        grid: spinPos.grid + 1,
-      };
-      break;
+    case 3:
+      switch (gameData.curMino) {
+        case minoDatas[0].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row - 2,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid,
+          };
+          break;
 
-    case minoDatas[4].name:
-      gameData.minoPos.rend1 = {
-        row: spinPos.row,
-        grid: spinPos.grid - 1,
-      };
-      gameData.minoPos.rend2 = {
-        row: spinPos.row,
-        grid: spinPos.grid + 1,
-      };
-      gameData.minoPos.rend3 = {
-        row: spinPos.row - 1,
-        grid: spinPos.grid + 1,
-      };
-      break;
+        case minoDatas[1].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid,
+          };
+          break;
 
-    case minoDatas[5].name:
-      gameData.minoPos.rend1 = {
-        row: spinPos.row - 1,
-        grid: spinPos.grid - 1,
-      };
-      gameData.minoPos.rend2 = {
-        row: spinPos.row,
-        grid: spinPos.grid - 1,
-      };
-      gameData.minoPos.rend3 = {
-        row: spinPos.row,
-        grid: spinPos.grid + 1,
-      };
-      break;
+        case minoDatas[2].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid,
+          };
+          break;
 
-    case minoDatas[6].name:
-      gameData.minoPos.rend1 = {
-        row: spinPos.row - 1,
-        grid: spinPos.grid - 1,
-      };
-      gameData.minoPos.rend2 = {
-        row: spinPos.row - 1,
-        grid: spinPos.grid,
-      };
-      gameData.minoPos.rend3 = {
-        row: spinPos.row - 1,
-        grid: spinPos.grid + 1,
-      };
-      break;
+        case minoDatas[3].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid + 1,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row,
+            grid: spinPos.grid + 1,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid,
+          };
+          break;
 
-    default:
+        case minoDatas[4].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid - 1,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid,
+          };
+          break;
+
+        case minoDatas[5].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid + 1,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row + 1,
+            grid: spinPos.grid,
+          };
+          break;
+
+        case minoDatas[6].name:
+          gameData.minoPos.rend1 = {
+            row: spinPos.row - 1,
+            grid: spinPos.grid,
+          };
+          gameData.minoPos.rend2 = {
+            row: spinPos.row,
+            grid: spinPos.grid + 1,
+          };
+          gameData.minoPos.rend3 = {
+            row: spinPos.row,
+            grid: spinPos.grid + 1,
+          };
+          break;
+
+        default:
+          break;
+      }
       break;
   }
 };
 
 const gameOver = () => {
   window.alert(`Game Over!`);
+  window.location.reload();
 };
 
 const checkGridConflict = (row, grid) => {
@@ -318,20 +659,23 @@ const checkMoveConflict = (move = `stop`) => {
   }
 };
 
-/* 미노 회전축 스폰 위치 기준점 = gridDatas[0][4] (gameGridData[4][4]) */
-/* gameGridData = { mino: undefined, isMoving: false } */
 const minoSpawn = () => {
   minoRemovePrev();
-  gameData.minoPos.spinPos = { row: 0, grid: 4 };
   setMinoRendGrids();
   if (checkMoveConflict()) gameOver();
   rendMino();
 };
 
+/* 미노 회전축 스폰 위치 기준점 = gridDatas[0][4] (gameGridData[4][4]) */
 export const takeoutNext = () => {
   refillBag();
   gameData.curMino = minoBag.shift();
+  gameData.minoPos.spinPos = { row: 0, grid: 4 };
+  if (gameData.curMino == minoDatas[6].name)
+    gameData.minoPos.spinPos = { row: -1, grid: 4 };
   gameData.holdDone = false;
+  gameData.minoSpin = 0;
+  gameData.bottomDelay = 0;
   minoSpawn();
   rendNext();
 };
