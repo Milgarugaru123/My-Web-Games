@@ -305,15 +305,15 @@ const setMinoRendGrids = () => {
         case minoDatas[3].name:
           gameData.minoPos.rend1 = {
             row: spinPos.row - 1,
-            grid: spinPos.grid,
+            grid: spinPos.grid + 1,
           };
           gameData.minoPos.rend2 = {
             row: spinPos.row,
-            grid: spinPos.grid - 1,
+            grid: spinPos.grid + 1,
           };
           gameData.minoPos.rend3 = {
             row: spinPos.row + 1,
-            grid: spinPos.grid - 1,
+            grid: spinPos.grid,
           };
           break;
 
@@ -529,15 +529,15 @@ const setMinoRendGrids = () => {
         case minoDatas[3].name:
           gameData.minoPos.rend1 = {
             row: spinPos.row - 1,
-            grid: spinPos.grid + 1,
+            grid: spinPos.grid,
           };
           gameData.minoPos.rend2 = {
             row: spinPos.row,
-            grid: spinPos.grid + 1,
+            grid: spinPos.grid - 1,
           };
           gameData.minoPos.rend3 = {
             row: spinPos.row + 1,
-            grid: spinPos.grid,
+            grid: spinPos.grid - 1,
           };
           break;
 
@@ -562,8 +562,8 @@ const setMinoRendGrids = () => {
             grid: spinPos.grid,
           };
           gameData.minoPos.rend2 = {
-            row: spinPos.row - 1,
-            grid: spinPos.grid + 1,
+            row: spinPos.row + 1,
+            grid: spinPos.grid - 1,
           };
           gameData.minoPos.rend3 = {
             row: spinPos.row + 1,
@@ -581,8 +581,8 @@ const setMinoRendGrids = () => {
             grid: spinPos.grid + 1,
           };
           gameData.minoPos.rend3 = {
-            row: spinPos.row,
-            grid: spinPos.grid + 1,
+            row: spinPos.row + 1,
+            grid: spinPos.grid,
           };
           break;
 
@@ -611,12 +611,22 @@ const checkMoveConflict = (move = `stop`) => {
   const pos3 = gameData.minoPos.rend3;
   switch (move) {
     case `stop`:
-      return (
+      if (
         checkGridConflict(spinPos.row, spinPos.grid) ||
         checkGridConflict(pos1.row, pos1.grid) ||
         checkGridConflict(pos2.row, pos2.grid) ||
         checkGridConflict(pos3.row, pos3.grid)
-      );
+      ) {
+        if (
+          checkGridConflict(spinPos.row - 1, spinPos.grid) ||
+          checkGridConflict(pos1.row - 1, pos1.grid) ||
+          checkGridConflict(pos2.row - 1, pos2.grid) ||
+          checkGridConflict(pos3.row - 1, pos3.grid)
+        )
+          return true;
+        else return `up`;
+      }
+      return false;
 
     case `left`:
       return (
@@ -661,8 +671,20 @@ const checkMoveConflict = (move = `stop`) => {
 
 const minoSpawn = () => {
   minoRemovePrev();
+  gameData.minoPos.spinPos = { row: 0, grid: 4 };
+  if (gameData.curMino == minoDatas[6].name)
+    gameData.minoPos.spinPos = { row: -1, grid: 4 };
+  gameData.holdDone = false;
+  gameData.minoSpin = 0;
+  gameData.bottomDelay = 0;
   setMinoRendGrids();
-  if (checkMoveConflict()) gameOver();
+  const checkConflict = checkMoveConflict();
+  if (checkConflict) {
+    if (checkConflict == `up`) {
+      gameData.minoPos.spinPos.row -= 1;
+      setMinoRendGrids();
+    } else gameOver();
+  }
   rendMino();
 };
 
@@ -670,12 +692,6 @@ const minoSpawn = () => {
 export const takeoutNext = () => {
   refillBag();
   gameData.curMino = minoBag.shift();
-  gameData.minoPos.spinPos = { row: 0, grid: 4 };
-  if (gameData.curMino == minoDatas[6].name)
-    gameData.minoPos.spinPos = { row: -1, grid: 4 };
-  gameData.holdDone = false;
-  gameData.minoSpin = 0;
-  gameData.bottomDelay = 0;
   minoSpawn();
   rendNext();
 };
@@ -779,29 +795,38 @@ const checkHoldConflict = (mino) => {
       break;
 
     case minoDatas[6].name:
+      tempMino.pos.row = -1;
       tempMino.rend1 = {
-        row: tempMino.pos.row - 1,
+        row: tempMino.pos.row,
         grid: tempMino.pos.grid - 1,
       };
       tempMino.rend2 = {
-        row: tempMino.pos.row - 1,
+        row: tempMino.pos.row + 1,
         grid: tempMino.pos.grid,
       };
       tempMino.rend3 = {
-        row: tempMino.pos.row - 1,
+        row: tempMino.pos.row,
         grid: tempMino.pos.grid + 1,
       };
       break;
 
     default:
-      break;
+      return;
   }
-  return (
+  if (
     checkGridConflict(tempMino.pos.row, tempMino.pos.grid) ||
     checkGridConflict(tempMino.rend1.row, tempMino.rend1.grid) ||
     checkGridConflict(tempMino.rend2.row, tempMino.rend2.grid) ||
     checkGridConflict(tempMino.rend3.row, tempMino.rend3.grid)
-  );
+  ) {
+    return (
+      checkGridConflict(tempMino.pos.row - 1, tempMino.pos.grid) ||
+      checkGridConflict(tempMino.rend1.row - 1, tempMino.rend1.grid) ||
+      checkGridConflict(tempMino.rend2.row - 1, tempMino.rend2.grid) ||
+      checkGridConflict(tempMino.rend3.row - 1, tempMino.rend3.grid)
+    );
+  }
+  return false;
 };
 
 const changeHold = () => {
@@ -877,15 +902,46 @@ const keyPressSpacebar = () => {
   takeoutNext();
 };
 
+const checkSpinConflict = (direction) => {
+  switch (gameData.curMino) {
+    case 1:
+      break;
+
+    default:
+      return;
+  }
+  const lr = direction == `left` ? -1 : 1;
+  if (
+    checkGridConflict(spinPos.row, spinPos.grid) ||
+    checkGridConflict(pos1.row, pos1.grid) ||
+    checkGridConflict(pos2.row, pos2.grid) ||
+    checkGridConflict(pos3.row, pos3.grid)
+  );
+  else if (
+    checkGridConflict(spinPos.row, spinPos.grid) ||
+    checkGridConflict(pos1.row, pos1.grid) ||
+    checkGridConflict(pos2.row, pos2.grid) ||
+    checkGridConflict(pos3.row, pos3.grid)
+  );
+};
+
 const spinLeft = () => {
+  gameData.minoSpin = (gameData.minoSpin + 3) % 4;
+  switch (checkSpinConflict(`left`)) {
+    case 1:
+      break;
+
+    default:
+      gameData.minoSpin = (gameData.minoSpin + 1) % 4;
+      return;
+  }
   minoRemovePrev();
-  gameData.minoSpin = gameData.minoSpin === 0 ? 3 : gameData.minoSpin - 1;
   setMinoRendGrids();
   rendMino();
 };
 const spinRight = () => {
+  gameData.minoSpin = (gameData.minoSpin + 1) % 4;
   minoRemovePrev();
-  gameData.minoSpin = gameData.minoSpin === 3 ? 0 : gameData.minoSpin + 1;
   setMinoRendGrids();
   rendMino();
 };
