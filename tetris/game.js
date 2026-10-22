@@ -903,45 +903,494 @@ const keyPressSpacebar = () => {
 };
 
 const checkSpinConflict = (direction) => {
-  switch (gameData.curMino) {
-    case 1:
+  const pos = gameData.minoPos.spinPos;
+  const pos1 = gameData.minoPos.rend1;
+  const pos2 = gameData.minoPos.rend2;
+  const pos3 = gameData.minoPos.rend3;
+  const spin =
+    direction == `left`
+      ? (gameData.minoSpin + 3) % 4
+      : (gameData.minoSpin + 1) % 4;
+  const lr = direction == `left` ? -1 : 1;
+  switch (spin) {
+    case 0:
+      switch (gameData.curMino) {
+        case minoDatas[0].name:
+          pos1 = {
+            row: pos.row,
+            grid: pos.grid - 1,
+          };
+          pos2 = {
+            row: pos.row,
+            grid: pos.grid + 1,
+          };
+          pos3 = {
+            row: pos.row,
+            grid: pos.grid + 2,
+          };
+          break;
+
+        case minoDatas[1].name:
+          pos1 = {
+            row: pos.row,
+            grid: pos.grid + 1,
+          };
+          pos2 = {
+            row: pos.row - 1,
+            grid: pos.grid,
+          };
+          pos3 = {
+            row: pos.row - 1,
+            grid: pos.grid + 1,
+          };
+          break;
+
+        case minoDatas[2].name:
+          pos1 = {
+            row: pos.row,
+            grid: pos.grid - 1,
+          };
+          pos2 = {
+            row: pos.row - 1,
+            grid: pos.grid,
+          };
+          pos3 = {
+            row: pos.row - 1,
+            grid: pos.grid + 1,
+          };
+          break;
+
+        case minoDatas[3].name:
+          pos1 = {
+            row: pos.row - 1,
+            grid: pos.grid - 1,
+          };
+          pos2 = {
+            row: pos.row - 1,
+            grid: pos.grid,
+          };
+          pos3 = {
+            row: pos.row,
+            grid: pos.grid + 1,
+          };
+          break;
+
+        case minoDatas[4].name:
+          pos1 = {
+            row: pos.row,
+            grid: pos.grid - 1,
+          };
+          pos2 = {
+            row: pos.row,
+            grid: pos.grid + 1,
+          };
+          pos3 = {
+            row: pos.row - 1,
+            grid: pos.grid + 1,
+          };
+          break;
+
+        case minoDatas[5].name:
+          pos1 = {
+            row: pos.row - 1,
+            grid: pos.grid - 1,
+          };
+          pos2 = {
+            row: pos.row,
+            grid: pos.grid - 1,
+          };
+          pos3 = {
+            row: pos.row,
+            grid: pos.grid + 1,
+          };
+          break;
+
+        case minoDatas[6].name:
+          pos1 = {
+            row: pos.row,
+            grid: pos.grid - 1,
+          };
+          pos2 = {
+            row: pos.row + 1,
+            grid: pos.grid,
+          };
+          pos3 = {
+            row: pos.row,
+            grid: pos.grid + 1,
+          };
+          break;
+
+        default:
+          break;
+      }
       break;
 
-    default:
-      return;
+    case 1:
+      switch (gameData.curMino) {
+        case minoDatas[0].name:
+          pos1 = {
+            row: pos.row - 1,
+            grid: pos.grid,
+          };
+          pos2 = {
+            row: pos.row + 1,
+            grid: pos.grid,
+          };
+          pos3 = {
+            row: pos.row + 2,
+            grid: pos.grid,
+          };
+          break;
+
+        case minoDatas[1].name:
+          pos1 = {
+            row: pos.row,
+            grid: pos.grid + 1,
+          };
+          pos2 = {
+            row: pos.row + 1,
+            grid: pos.grid,
+          };
+          pos3 = {
+            row: pos.row + 1,
+            grid: pos.grid + 1,
+          };
+          break;
+
+        case minoDatas[2].name:
+          pos1 = {
+            row: pos.row - 1,
+            grid: pos.grid,
+          };
+          pos2 = {
+            row: pos.row,
+            grid: pos.grid + 1,
+          };
+          pos3 = {
+            row: pos.row + 1,
+            grid: pos.grid + 1,
+          };
+          break;
+
+        case minoDatas[3].name:
+          pos1 = {
+            row: pos.row - 1,
+            grid: pos.grid + 1,
+          };
+          pos2 = {
+            row: pos.row,
+            grid: pos.grid + 1,
+          };
+          pos3 = {
+            row: pos.row + 1,
+            grid: pos.grid,
+          };
+          break;
+
+        case minoDatas[4].name:
+          pos1 = {
+            row: pos.row - 1,
+            grid: pos.grid,
+          };
+          pos2 = {
+            row: pos.row + 1,
+            grid: pos.grid,
+          };
+          pos3 = {
+            row: pos.row + 1,
+            grid: pos.grid + 1,
+          };
+          break;
+
+        case minoDatas[5].name:
+          pos1 = {
+            row: pos.row - 1,
+            grid: pos.grid,
+          };
+          pos2 = {
+            row: pos.row - 1,
+            grid: pos.grid + 1,
+          };
+          pos3 = {
+            row: pos.row + 1,
+            grid: pos.grid,
+          };
+          break;
+
+        case minoDatas[6].name:
+          pos1 = {
+            row: pos.row - 1,
+            grid: pos.grid,
+          };
+          pos2 = {
+            row: pos.row,
+            grid: pos.grid - 1,
+          };
+          pos3 = {
+            row: pos.row + 1,
+            grid: pos.grid,
+          };
+          break;
+
+        default:
+          break;
+      }
+      break;
+
+    case 2:
+      switch (gameData.curMino) {
+        case minoDatas[0].name:
+          pos1 = {
+            row: pos.row,
+            grid: pos.grid - 2,
+          };
+          pos2 = {
+            row: pos.row,
+            grid: pos.grid - 1,
+          };
+          pos3 = {
+            row: pos.row,
+            grid: pos.grid + 1,
+          };
+          break;
+
+        case minoDatas[1].name:
+          pos1 = {
+            row: pos.row,
+            grid: pos.grid - 1,
+          };
+          pos2 = {
+            row: pos.row + 1,
+            grid: pos.grid - 1,
+          };
+          pos3 = {
+            row: pos.row + 1,
+            grid: pos.grid,
+          };
+          break;
+
+        case minoDatas[2].name:
+          pos1 = {
+            row: pos.row,
+            grid: pos.grid + 1,
+          };
+          pos2 = {
+            row: pos.row + 1,
+            grid: pos.grid - 1,
+          };
+          pos3 = {
+            row: pos.row + 1,
+            grid: pos.grid,
+          };
+          break;
+
+        case minoDatas[3].name:
+          pos1 = {
+            row: pos.row,
+            grid: pos.grid - 1,
+          };
+          pos2 = {
+            row: pos.row + 1,
+            grid: pos.grid,
+          };
+          pos3 = {
+            row: pos.row + 1,
+            grid: pos.grid + 1,
+          };
+          break;
+
+        case minoDatas[4].name:
+          pos1 = {
+            row: pos.row,
+            grid: pos.grid - 1,
+          };
+          pos2 = {
+            row: pos.row + 1,
+            grid: pos.grid - 1,
+          };
+          pos3 = {
+            row: pos.row,
+            grid: pos.grid + 1,
+          };
+          break;
+
+        case minoDatas[5].name:
+          pos1 = {
+            row: pos.row,
+            grid: pos.grid - 1,
+          };
+          pos2 = {
+            row: pos.row,
+            grid: pos.grid + 1,
+          };
+          pos3 = {
+            row: pos.row + 1,
+            grid: pos.grid + 1,
+          };
+          break;
+
+        case minoDatas[6].name:
+          pos1 = {
+            row: pos.row - 1,
+            grid: pos.grid,
+          };
+          pos2 = {
+            row: pos.row,
+            grid: pos.grid - 1,
+          };
+          pos3 = {
+            row: pos.row,
+            grid: pos.grid + 1,
+          };
+          break;
+
+        default:
+          break;
+      }
+      break;
+
+    case 3:
+      switch (gameData.curMino) {
+        case minoDatas[0].name:
+          pos1 = {
+            row: pos.row - 2,
+            grid: pos.grid,
+          };
+          pos2 = {
+            row: pos.row - 1,
+            grid: pos.grid,
+          };
+          pos3 = {
+            row: pos.row + 1,
+            grid: pos.grid,
+          };
+          break;
+
+        case minoDatas[1].name:
+          pos1 = {
+            row: pos.row,
+            grid: pos.grid - 1,
+          };
+          pos2 = {
+            row: pos.row - 1,
+            grid: pos.grid - 1,
+          };
+          pos3 = {
+            row: pos.row - 1,
+            grid: pos.grid,
+          };
+          break;
+
+        case minoDatas[2].name:
+          pos1 = {
+            row: pos.row - 1,
+            grid: pos.grid - 1,
+          };
+          pos2 = {
+            row: pos.row,
+            grid: pos.grid - 1,
+          };
+          pos3 = {
+            row: pos.row + 1,
+            grid: pos.grid,
+          };
+          break;
+
+        case minoDatas[3].name:
+          pos1 = {
+            row: pos.row - 1,
+            grid: pos.grid,
+          };
+          pos2 = {
+            row: pos.row,
+            grid: pos.grid - 1,
+          };
+          pos3 = {
+            row: pos.row + 1,
+            grid: pos.grid - 1,
+          };
+          break;
+
+        case minoDatas[4].name:
+          pos1 = {
+            row: pos.row - 1,
+            grid: pos.grid - 1,
+          };
+          pos2 = {
+            row: pos.row - 1,
+            grid: pos.grid,
+          };
+          pos3 = {
+            row: pos.row + 1,
+            grid: pos.grid,
+          };
+          break;
+
+        case minoDatas[5].name:
+          pos1 = {
+            row: pos.row - 1,
+            grid: pos.grid,
+          };
+          pos2 = {
+            row: pos.row + 1,
+            grid: pos.grid - 1,
+          };
+          pos3 = {
+            row: pos.row + 1,
+            grid: pos.grid,
+          };
+          break;
+
+        case minoDatas[6].name:
+          pos1 = {
+            row: pos.row - 1,
+            grid: pos.grid,
+          };
+          pos2 = {
+            row: pos.row,
+            grid: pos.grid + 1,
+          };
+          pos3 = {
+            row: pos.row + 1,
+            grid: pos.grid,
+          };
+          break;
+
+        default:
+          break;
+      }
+      break;
   }
-  const lr = direction == `left` ? -1 : 1;
   if (
-    checkGridConflict(spinPos.row, spinPos.grid) ||
-    checkGridConflict(pos1.row, pos1.grid) ||
-    checkGridConflict(pos2.row, pos2.grid) ||
-    checkGridConflict(pos3.row, pos3.grid)
-  );
-  else if (
-    checkGridConflict(spinPos.row, spinPos.grid) ||
-    checkGridConflict(pos1.row, pos1.grid) ||
-    checkGridConflict(pos2.row, pos2.grid) ||
-    checkGridConflict(pos3.row, pos3.grid)
+    !checkGridConflict(pos.row, pos.grid) ||
+    !checkGridConflict(pos1.row, pos1.grid) ||
+    !checkGridConflict(pos2.row, pos2.grid) ||
+    !checkGridConflict(pos3.row, pos3.grid)
+  ) {
+  } else if (
+    !checkGridConflict(pos.row, pos.grid) ||
+    !checkGridConflict(pos1.row, pos1.grid) ||
+    !checkGridConflict(pos2.row, pos2.grid) ||
+    !checkGridConflict(pos3.row, pos3.grid)
   );
 };
 
 const spinLeft = () => {
-  gameData.minoSpin = (gameData.minoSpin + 3) % 4;
   switch (checkSpinConflict(`left`)) {
     case 1:
       break;
 
     default:
-      gameData.minoSpin = (gameData.minoSpin + 1) % 4;
       return;
   }
+  gameData.minoSpin = (gameData.minoSpin + 3) % 4;
   minoRemovePrev();
   setMinoRendGrids();
   rendMino();
 };
 const spinRight = () => {
-  gameData.minoSpin = (gameData.minoSpin + 1) % 4;
   minoRemovePrev();
+  gameData.minoSpin = (gameData.minoSpin + 1) % 4;
   setMinoRendGrids();
   rendMino();
 };
