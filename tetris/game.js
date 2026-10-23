@@ -9,8 +9,11 @@ import {
 
 const keyDatas = {
   spinLeft: `s`,
+  spinLeftPressed: false,
   spinRight: `d`,
+  spinRightPressed: false,
   hold: `Shift`,
+  holdPressed: false,
 };
 
 export const gameData = {
@@ -29,6 +32,7 @@ export const gameData = {
   minoSpin: 0, // 0 : default, 1 : 90deg, 2 : 180deg, 3: 270deg
   holdMino: undefined,
   holdDone: false,
+  isSpinned: false,
   bottomDelay: 0,
   minoIntervalID: undefined,
 };
@@ -272,21 +276,6 @@ const setMinoRendGrids = () => {
           };
           break;
 
-        case minoDatas[1].name:
-          gameData.minoPos.rend1 = {
-            row: spinPos.row,
-            grid: spinPos.grid + 1,
-          };
-          gameData.minoPos.rend2 = {
-            row: spinPos.row + 1,
-            grid: spinPos.grid,
-          };
-          gameData.minoPos.rend3 = {
-            row: spinPos.row + 1,
-            grid: spinPos.grid + 1,
-          };
-          break;
-
         case minoDatas[2].name:
           gameData.minoPos.rend1 = {
             row: spinPos.row - 1,
@@ -384,21 +373,6 @@ const setMinoRendGrids = () => {
           };
           break;
 
-        case minoDatas[1].name:
-          gameData.minoPos.rend1 = {
-            row: spinPos.row,
-            grid: spinPos.grid - 1,
-          };
-          gameData.minoPos.rend2 = {
-            row: spinPos.row + 1,
-            grid: spinPos.grid - 1,
-          };
-          gameData.minoPos.rend3 = {
-            row: spinPos.row + 1,
-            grid: spinPos.grid,
-          };
-          break;
-
         case minoDatas[2].name:
           gameData.minoPos.rend1 = {
             row: spinPos.row,
@@ -492,21 +466,6 @@ const setMinoRendGrids = () => {
           };
           gameData.minoPos.rend3 = {
             row: spinPos.row + 1,
-            grid: spinPos.grid,
-          };
-          break;
-
-        case minoDatas[1].name:
-          gameData.minoPos.rend1 = {
-            row: spinPos.row,
-            grid: spinPos.grid - 1,
-          };
-          gameData.minoPos.rend2 = {
-            row: spinPos.row - 1,
-            grid: spinPos.grid - 1,
-          };
-          gameData.minoPos.rend3 = {
-            row: spinPos.row - 1,
             grid: spinPos.grid,
           };
           break;
@@ -902,11 +861,255 @@ const keyPressSpacebar = () => {
   takeoutNext();
 };
 
+const checkSpinOutOfBoard = (pos, pos1, pos2, pos3) => {
+  return (
+    pos.row < -4 ||
+    pos1.row < -4 ||
+    pos2.row < -4 ||
+    pos3.row < -4 ||
+    pos.row > 19 ||
+    pos1.row > 19 ||
+    pos2.row > 19 ||
+    pos3.row > 19 ||
+    pos.grid < 0 ||
+    pos1.grid < 0 ||
+    pos2.grid < 0 ||
+    pos3.grid < 0 ||
+    pos.grid > 9 ||
+    pos1.grid > 9 ||
+    pos2.grid > 9 ||
+    pos3.grid > 9
+  );
+};
+
+/*
+스핀 시 미노 이동 우선순위 (spinPos 기준) (I, O 미노 제외):
+1. 본래 위치
+2. 스핀 방향 앞 같은 높이
+3~5. 한 칸 아래 (스핀 방향 -> 반대 방향)
+6~8. 두 칸 아래 (스핀 방향 -> 반대 방향)
+9. 스핀 반대 방향 같은 높이
+10~12. 한 칸 위 (스핀 방향 -> 방대 방향)
+-> 총 12 케이스
+*/
+
+/* 스핀 시 미노 이동 우선순위 (spinPos 기준) (I 미노 전용):
+1. [스핀 시프트 후] 본래 위치
+2. 스핀 시프트 대각 반전 위치
+3. 
+-> 총 12+ 케이스 */
+const checkSpinI_MinoConflict = (pos, pos1, pos2, pos3, lr, shift) => {
+  if (
+    !(
+      checkSpinOutOfBoard(pos, pos1, pos2, pos3) ||
+      checkGridConflict(pos.row, pos.grid) ||
+      checkGridConflict(pos1.row, pos1.grid) ||
+      checkGridConflict(pos2.row, pos2.grid) ||
+      checkGridConflict(pos3.row, pos3.grid)
+    )
+  )
+    return 1;
+  else if (
+    !(
+      checkSpinOutOfBoard(
+        { row: pos.row, grid: pos.grid + lr },
+        { row: pos1.row, grid: pos1.grid + lr },
+        { row: pos2.row, grid: pos2.grid + lr },
+        { row: pos3.row, grid: pos3.grid + lr },
+      ) ||
+      checkGridConflict(pos.row, pos.grid + lr) ||
+      checkGridConflict(pos1.row, pos1.grid + lr) ||
+      checkGridConflict(pos2.row, pos2.grid + lr) ||
+      checkGridConflict(pos3.row, pos3.grid + lr)
+    )
+  )
+    return 2;
+  return 0;
+};
+const checkSpinMinoConflict = (pos, pos1, pos2, pos3, lr) => {
+  if (
+    !(
+      checkSpinOutOfBoard(pos, pos1, pos2, pos3) ||
+      checkGridConflict(pos.row, pos.grid) ||
+      checkGridConflict(pos1.row, pos1.grid) ||
+      checkGridConflict(pos2.row, pos2.grid) ||
+      checkGridConflict(pos3.row, pos3.grid)
+    )
+  )
+    return 1;
+  else if (
+    !(
+      checkSpinOutOfBoard(
+        { row: pos.row, grid: pos.grid + lr },
+        { row: pos1.row, grid: pos1.grid + lr },
+        { row: pos2.row, grid: pos2.grid + lr },
+        { row: pos3.row, grid: pos3.grid + lr },
+      ) ||
+      checkGridConflict(pos.row, pos.grid + lr) ||
+      checkGridConflict(pos1.row, pos1.grid + lr) ||
+      checkGridConflict(pos2.row, pos2.grid + lr) ||
+      checkGridConflict(pos3.row, pos3.grid + lr)
+    )
+  )
+    return 2;
+  else if (
+    !(
+      checkSpinOutOfBoard(
+        { row: pos.row + 1, grid: pos.grid + lr },
+        { row: pos1.row + 1, grid: pos1.grid + lr },
+        { row: pos2.row + 1, grid: pos2.grid + lr },
+        { row: pos3.row + 1, grid: pos3.grid + lr },
+      ) ||
+      checkGridConflict(pos.row + 1, pos.grid + lr) ||
+      checkGridConflict(pos1.row + 1, pos1.grid + lr) ||
+      checkGridConflict(pos2.row + 1, pos2.grid + lr) ||
+      checkGridConflict(pos3.row + 1, pos3.grid + lr)
+    )
+  )
+    return 3;
+  else if (
+    !(
+      checkSpinOutOfBoard(
+        { row: pos.row + 1, grid: pos.grid },
+        { row: pos1.row + 1, grid: pos1.grid },
+        { row: pos2.row + 1, grid: pos2.grid },
+        { row: pos3.row + 1, grid: pos3.grid },
+      ) ||
+      checkGridConflict(pos.row + 1, pos.grid) ||
+      checkGridConflict(pos1.row + 1, pos1.grid) ||
+      checkGridConflict(pos2.row + 1, pos2.grid) ||
+      checkGridConflict(pos3.row + 1, pos3.grid)
+    )
+  )
+    return 4;
+  else if (
+    !(
+      checkSpinOutOfBoard(
+        { row: pos.row + 1, grid: pos.grid - lr },
+        { row: pos1.row + 1, grid: pos1.grid - lr },
+        { row: pos2.row + 1, grid: pos2.grid - lr },
+        { row: pos3.row + 1, grid: pos3.grid - lr },
+      ) ||
+      checkGridConflict(pos.row + 1, pos.grid - lr) ||
+      checkGridConflict(pos1.row + 1, pos1.grid - lr) ||
+      checkGridConflict(pos2.row + 1, pos2.grid - lr) ||
+      checkGridConflict(pos3.row + 1, pos3.grid - lr)
+    )
+  )
+    return 5;
+  else if (
+    !(
+      checkSpinOutOfBoard(
+        { row: pos.row + 2, grid: pos.grid + lr },
+        { row: pos1.row + 2, grid: pos1.grid + lr },
+        { row: pos2.row + 2, grid: pos2.grid + lr },
+        { row: pos3.row + 2, grid: pos3.grid + lr },
+      ) ||
+      checkGridConflict(pos.row + 2, pos.grid + lr) ||
+      checkGridConflict(pos1.row + 2, pos1.grid + lr) ||
+      checkGridConflict(pos2.row + 2, pos2.grid + lr) ||
+      checkGridConflict(pos3.row + 2, pos3.grid + lr)
+    )
+  )
+    return 6;
+  else if (
+    !(
+      checkSpinOutOfBoard(
+        { row: pos.row + 2, grid: pos.grid },
+        { row: pos1.row + 2, grid: pos1.grid },
+        { row: pos2.row + 2, grid: pos2.grid },
+        { row: pos3.row + 2, grid: pos3.grid },
+      ) ||
+      checkGridConflict(pos.row + 2, pos.grid) ||
+      checkGridConflict(pos1.row + 2, pos1.grid) ||
+      checkGridConflict(pos2.row + 2, pos2.grid) ||
+      checkGridConflict(pos3.row + 2, pos3.grid)
+    )
+  )
+    return 7;
+  else if (
+    !(
+      checkSpinOutOfBoard(
+        { row: pos.row + 2, grid: pos.grid - lr },
+        { row: pos1.row + 2, grid: pos1.grid - lr },
+        { row: pos2.row + 2, grid: pos2.grid - lr },
+        { row: pos3.row + 2, grid: pos3.grid - lr },
+      ) ||
+      checkGridConflict(pos.row + 2, pos.grid - lr) ||
+      checkGridConflict(pos1.row + 2, pos1.grid - lr) ||
+      checkGridConflict(pos2.row + 2, pos2.grid - lr) ||
+      checkGridConflict(pos3.row + 2, pos3.grid - lr)
+    )
+  )
+    return 8;
+  else if (
+    !(
+      checkSpinOutOfBoard(
+        { row: pos.row, grid: pos.grid - lr },
+        { row: pos1.row, grid: pos1.grid - lr },
+        { row: pos2.row, grid: pos2.grid - lr },
+        { row: pos3.row, grid: pos3.grid - lr },
+      ) ||
+      checkGridConflict(pos.row, pos.grid - lr) ||
+      checkGridConflict(pos1.row, pos1.grid - lr) ||
+      checkGridConflict(pos2.row, pos2.grid - lr) ||
+      checkGridConflict(pos3.row, pos3.grid - lr)
+    )
+  )
+    return 9;
+  else if (
+    !(
+      checkSpinOutOfBoard(
+        { row: pos.row - 1, grid: pos.grid + lr },
+        { row: pos1.row - 1, grid: pos1.grid + lr },
+        { row: pos2.row - 1, grid: pos2.grid + lr },
+        { row: pos3.row - 1, grid: pos3.grid + lr },
+      ) ||
+      checkGridConflict(pos.row - 1, pos.grid + lr) ||
+      checkGridConflict(pos1.row - 1, pos1.grid + lr) ||
+      checkGridConflict(pos2.row - 1, pos2.grid + lr) ||
+      checkGridConflict(pos3.row - 1, pos3.grid + lr)
+    )
+  )
+    return 10;
+  else if (
+    !(
+      checkSpinOutOfBoard(
+        { row: pos.row - 1, grid: pos.grid },
+        { row: pos1.row - 1, grid: pos1.grid },
+        { row: pos2.row - 1, grid: pos2.grid },
+        { row: pos3.row - 1, grid: pos3.grid },
+      ) ||
+      checkGridConflict(pos.row - 1, pos.grid) ||
+      checkGridConflict(pos1.row - 1, pos1.grid) ||
+      checkGridConflict(pos2.row - 1, pos2.grid) ||
+      checkGridConflict(pos3.row - 1, pos3.grid)
+    )
+  )
+    return 11;
+  else if (
+    !(
+      checkSpinOutOfBoard(
+        { row: pos.row - 1, grid: pos.grid - lr },
+        { row: pos1.row - 1, grid: pos1.grid - lr },
+        { row: pos2.row - 1, grid: pos2.grid - lr },
+        { row: pos3.row - 1, grid: pos3.grid - lr },
+      ) ||
+      checkGridConflict(pos.row - 1, pos.grid - lr) ||
+      checkGridConflict(pos1.row - 1, pos1.grid - lr) ||
+      checkGridConflict(pos2.row - 1, pos2.grid - lr) ||
+      checkGridConflict(pos3.row - 1, pos3.grid - lr)
+    )
+  )
+    return 12;
+  return 0;
+};
+
 const checkSpinConflict = (direction) => {
   const pos = gameData.minoPos.spinPos;
-  const pos1 = gameData.minoPos.rend1;
-  const pos2 = gameData.minoPos.rend2;
-  const pos3 = gameData.minoPos.rend3;
+  const pos1 = { row: undefined, grid: undefined };
+  const pos2 = { row: undefined, grid: undefined };
+  const pos3 = { row: undefined, grid: undefined };
   const spin =
     direction == `left`
       ? (gameData.minoSpin + 3) % 4
@@ -916,109 +1119,60 @@ const checkSpinConflict = (direction) => {
     case 0:
       switch (gameData.curMino) {
         case minoDatas[0].name:
-          pos1 = {
-            row: pos.row,
-            grid: pos.grid - 1,
-          };
-          pos2 = {
-            row: pos.row,
-            grid: pos.grid + 1,
-          };
-          pos3 = {
-            row: pos.row,
-            grid: pos.grid + 2,
-          };
-          break;
-
-        case minoDatas[1].name:
-          pos1 = {
-            row: pos.row,
-            grid: pos.grid + 1,
-          };
-          pos2 = {
-            row: pos.row - 1,
-            grid: pos.grid,
-          };
-          pos3 = {
-            row: pos.row - 1,
-            grid: pos.grid + 1,
-          };
-          break;
+          pos.row += direction == `left` ? 0 : -1;
+          pos.grid += direction == `left` ? -1 : 0;
+          pos1.row = pos.row;
+          pos1.grid = pos.grid - 1;
+          pos2.row = pos.row;
+          pos2.grid = pos.grid + 1;
+          pos3.row = pos.row;
+          pos3.grid = pos.grid + 2;
+          return checkSpinI_MinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[2].name:
-          pos1 = {
-            row: pos.row,
-            grid: pos.grid - 1,
-          };
-          pos2 = {
-            row: pos.row - 1,
-            grid: pos.grid,
-          };
-          pos3 = {
-            row: pos.row - 1,
-            grid: pos.grid + 1,
-          };
-          break;
+          pos1.row = pos.row;
+          pos1.grid = pos.grid - 1;
+          pos2.row = pos.row - 1;
+          pos2.grid = pos.grid;
+          pos3.row = pos.row - 1;
+          pos3.grid = pos.grid + 1;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[3].name:
-          pos1 = {
-            row: pos.row - 1,
-            grid: pos.grid - 1,
-          };
-          pos2 = {
-            row: pos.row - 1,
-            grid: pos.grid,
-          };
-          pos3 = {
-            row: pos.row,
-            grid: pos.grid + 1,
-          };
-          break;
+          pos1.row = pos.row - 1;
+          pos1.grid = pos.grid - 1;
+          pos2.row = pos.row - 1;
+          pos2.grid = pos.grid;
+          pos3.row = pos.row;
+          pos3.grid = pos.grid + 1;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[4].name:
-          pos1 = {
-            row: pos.row,
-            grid: pos.grid - 1,
-          };
-          pos2 = {
-            row: pos.row,
-            grid: pos.grid + 1,
-          };
-          pos3 = {
-            row: pos.row - 1,
-            grid: pos.grid + 1,
-          };
-          break;
+          pos1.row = pos.row;
+          pos1.grid = pos.grid - 1;
+          pos2.row = pos.row;
+          pos2.grid = pos.grid + 1;
+          pos3.row = pos.row - 1;
+          pos3.grid = pos.grid + 1;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[5].name:
-          pos1 = {
-            row: pos.row - 1,
-            grid: pos.grid - 1,
-          };
-          pos2 = {
-            row: pos.row,
-            grid: pos.grid - 1,
-          };
-          pos3 = {
-            row: pos.row,
-            grid: pos.grid + 1,
-          };
-          break;
+          pos1.row = pos.row - 1;
+          pos1.grid = pos.grid - 1;
+          pos2.row = pos.row;
+          pos2.grid = pos.grid - 1;
+          pos3.row = pos.row;
+          pos3.grid = pos.grid + 1;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[6].name:
-          pos1 = {
-            row: pos.row,
-            grid: pos.grid - 1,
-          };
-          pos2 = {
-            row: pos.row + 1,
-            grid: pos.grid,
-          };
-          pos3 = {
-            row: pos.row,
-            grid: pos.grid + 1,
-          };
-          break;
+          pos1.row = pos.row;
+          pos1.grid = pos.grid - 1;
+          pos2.row = pos.row + 1;
+          pos2.grid = pos.grid;
+          pos3.row = pos.row;
+          pos3.grid = pos.grid + 1;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         default:
           break;
@@ -1028,109 +1182,60 @@ const checkSpinConflict = (direction) => {
     case 1:
       switch (gameData.curMino) {
         case minoDatas[0].name:
-          pos1 = {
-            row: pos.row - 1,
-            grid: pos.grid,
-          };
-          pos2 = {
-            row: pos.row + 1,
-            grid: pos.grid,
-          };
-          pos3 = {
-            row: pos.row + 2,
-            grid: pos.grid,
-          };
-          break;
-
-        case minoDatas[1].name:
-          pos1 = {
-            row: pos.row,
-            grid: pos.grid + 1,
-          };
-          pos2 = {
-            row: pos.row + 1,
-            grid: pos.grid,
-          };
-          pos3 = {
-            row: pos.row + 1,
-            grid: pos.grid + 1,
-          };
-          break;
+          pos.row += direction == `left` ? -1 : 0;
+          pos.grid += direction == `left` ? 0 : 1;
+          pos1.row = pos.row - 1;
+          pos1.grid = pos.grid;
+          pos2.row = pos.row + 1;
+          pos2.grid = pos.grid;
+          pos3.row = pos.row + 2;
+          pos3.grid = pos.grid;
+          return checkSpinI_MinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[2].name:
-          pos1 = {
-            row: pos.row - 1,
-            grid: pos.grid,
-          };
-          pos2 = {
-            row: pos.row,
-            grid: pos.grid + 1,
-          };
-          pos3 = {
-            row: pos.row + 1,
-            grid: pos.grid + 1,
-          };
-          break;
+          pos1.row = pos.row - 1;
+          pos1.grid = pos.grid;
+          pos2.row = pos.row;
+          pos2.grid = pos.grid + 1;
+          pos3.row = pos.row + 1;
+          pos3.grid = pos.grid + 1;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[3].name:
-          pos1 = {
-            row: pos.row - 1,
-            grid: pos.grid + 1,
-          };
-          pos2 = {
-            row: pos.row,
-            grid: pos.grid + 1,
-          };
-          pos3 = {
-            row: pos.row + 1,
-            grid: pos.grid,
-          };
-          break;
+          pos1.row = pos.row - 1;
+          pos1.grid = pos.grid + 1;
+          pos2.row = pos.row;
+          pos2.grid = pos.grid + 1;
+          pos3.row = pos.row + 1;
+          pos3.grid = pos.grid;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[4].name:
-          pos1 = {
-            row: pos.row - 1,
-            grid: pos.grid,
-          };
-          pos2 = {
-            row: pos.row + 1,
-            grid: pos.grid,
-          };
-          pos3 = {
-            row: pos.row + 1,
-            grid: pos.grid + 1,
-          };
-          break;
+          pos1.row = pos.row - 1;
+          pos1.grid = pos.grid;
+          pos2.row = pos.row + 1;
+          pos2.grid = pos.grid;
+          pos3.row = pos.row + 1;
+          pos3.grid = pos.grid + 1;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[5].name:
-          pos1 = {
-            row: pos.row - 1,
-            grid: pos.grid,
-          };
-          pos2 = {
-            row: pos.row - 1,
-            grid: pos.grid + 1,
-          };
-          pos3 = {
-            row: pos.row + 1,
-            grid: pos.grid,
-          };
-          break;
+          pos1.row = pos.row - 1;
+          pos1.grid = pos.grid;
+          pos2.row = pos.row - 1;
+          pos2.grid = pos.grid + 1;
+          pos3.row = pos.row + 1;
+          pos3.grid = pos.grid;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[6].name:
-          pos1 = {
-            row: pos.row - 1,
-            grid: pos.grid,
-          };
-          pos2 = {
-            row: pos.row,
-            grid: pos.grid - 1,
-          };
-          pos3 = {
-            row: pos.row + 1,
-            grid: pos.grid,
-          };
-          break;
+          pos1.row = pos.row - 1;
+          pos1.grid = pos.grid;
+          pos2.row = pos.row;
+          pos2.grid = pos.grid - 1;
+          pos3.row = pos.row + 1;
+          pos3.grid = pos.grid;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         default:
           break;
@@ -1140,109 +1245,60 @@ const checkSpinConflict = (direction) => {
     case 2:
       switch (gameData.curMino) {
         case minoDatas[0].name:
-          pos1 = {
-            row: pos.row,
-            grid: pos.grid - 2,
-          };
-          pos2 = {
-            row: pos.row,
-            grid: pos.grid - 1,
-          };
-          pos3 = {
-            row: pos.row,
-            grid: pos.grid + 1,
-          };
-          break;
-
-        case minoDatas[1].name:
-          pos1 = {
-            row: pos.row,
-            grid: pos.grid - 1,
-          };
-          pos2 = {
-            row: pos.row + 1,
-            grid: pos.grid - 1,
-          };
-          pos3 = {
-            row: pos.row + 1,
-            grid: pos.grid,
-          };
-          break;
+          pos.row += direction == `left` ? 0 : 1;
+          pos.grid += direction == `left` ? 1 : 0;
+          pos1.row = pos.row;
+          pos1.grid = pos.grid - 2;
+          pos2.row = pos.row;
+          pos2.grid = pos.grid - 1;
+          pos3.row = pos.row;
+          pos3.grid = pos.grid + 1;
+          return checkSpinI_MinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[2].name:
-          pos1 = {
-            row: pos.row,
-            grid: pos.grid + 1,
-          };
-          pos2 = {
-            row: pos.row + 1,
-            grid: pos.grid - 1,
-          };
-          pos3 = {
-            row: pos.row + 1,
-            grid: pos.grid,
-          };
-          break;
+          pos1.row = pos.row;
+          pos1.grid = pos.grid + 1;
+          pos2.row = pos.row + 1;
+          pos2.grid = pos.grid - 1;
+          pos3.row = pos.row + 1;
+          pos3.grid = pos.grid;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[3].name:
-          pos1 = {
-            row: pos.row,
-            grid: pos.grid - 1,
-          };
-          pos2 = {
-            row: pos.row + 1,
-            grid: pos.grid,
-          };
-          pos3 = {
-            row: pos.row + 1,
-            grid: pos.grid + 1,
-          };
-          break;
+          pos1.row = pos.row;
+          pos1.grid = pos.grid - 1;
+          pos2.row = pos.row + 1;
+          pos2.grid = pos.grid;
+          pos3.row = pos.row + 1;
+          pos3.grid = pos.grid + 1;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[4].name:
-          pos1 = {
-            row: pos.row,
-            grid: pos.grid - 1,
-          };
-          pos2 = {
-            row: pos.row + 1,
-            grid: pos.grid - 1,
-          };
-          pos3 = {
-            row: pos.row,
-            grid: pos.grid + 1,
-          };
-          break;
+          pos1.row = pos.row;
+          pos1.grid = pos.grid - 1;
+          pos2.row = pos.row + 1;
+          pos2.grid = pos.grid - 1;
+          pos3.row = pos.row;
+          pos3.grid = pos.grid + 1;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[5].name:
-          pos1 = {
-            row: pos.row,
-            grid: pos.grid - 1,
-          };
-          pos2 = {
-            row: pos.row,
-            grid: pos.grid + 1,
-          };
-          pos3 = {
-            row: pos.row + 1,
-            grid: pos.grid + 1,
-          };
-          break;
+          pos1.row = pos.row;
+          pos1.grid = pos.grid - 1;
+          pos2.row = pos.row;
+          pos2.grid = pos.grid + 1;
+          pos3.row = pos.row + 1;
+          pos3.grid = pos.grid + 1;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[6].name:
-          pos1 = {
-            row: pos.row - 1,
-            grid: pos.grid,
-          };
-          pos2 = {
-            row: pos.row,
-            grid: pos.grid - 1,
-          };
-          pos3 = {
-            row: pos.row,
-            grid: pos.grid + 1,
-          };
-          break;
+          pos1.row = pos.row - 1;
+          pos1.grid = pos.grid;
+          pos2.row = pos.row;
+          pos2.grid = pos.grid - 1;
+          pos3.row = pos.row;
+          pos3.grid = pos.grid + 1;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         default:
           break;
@@ -1252,144 +1308,182 @@ const checkSpinConflict = (direction) => {
     case 3:
       switch (gameData.curMino) {
         case minoDatas[0].name:
-          pos1 = {
-            row: pos.row - 2,
-            grid: pos.grid,
-          };
-          pos2 = {
-            row: pos.row - 1,
-            grid: pos.grid,
-          };
-          pos3 = {
-            row: pos.row + 1,
-            grid: pos.grid,
-          };
-          break;
-
-        case minoDatas[1].name:
-          pos1 = {
-            row: pos.row,
-            grid: pos.grid - 1,
-          };
-          pos2 = {
-            row: pos.row - 1,
-            grid: pos.grid - 1,
-          };
-          pos3 = {
-            row: pos.row - 1,
-            grid: pos.grid,
-          };
-          break;
+          pos.row += direction == `left` ? 1 : 0;
+          pos.grid += direction == `left` ? 0 : -1;
+          pos1.row = pos.row - 2;
+          pos1.grid = pos.grid;
+          pos2.row = pos.row - 1;
+          pos2.grid = pos.grid;
+          pos3.row = pos.row + 1;
+          pos3.grid = pos.grid;
+          return checkSpinI_MinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[2].name:
-          pos1 = {
-            row: pos.row - 1,
-            grid: pos.grid - 1,
-          };
-          pos2 = {
-            row: pos.row,
-            grid: pos.grid - 1,
-          };
-          pos3 = {
-            row: pos.row + 1,
-            grid: pos.grid,
-          };
-          break;
+          pos1.row = pos.row - 1;
+          pos1.grid = pos.grid - 1;
+          pos2.row = pos.row;
+          pos2.grid = pos.grid - 1;
+          pos3.row = pos.row + 1;
+          pos3.grid = pos.grid;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[3].name:
-          pos1 = {
-            row: pos.row - 1,
-            grid: pos.grid,
-          };
-          pos2 = {
-            row: pos.row,
-            grid: pos.grid - 1,
-          };
-          pos3 = {
-            row: pos.row + 1,
-            grid: pos.grid - 1,
-          };
-          break;
+          pos1.row = pos.row - 1;
+          pos1.grid = pos.grid;
+          pos2.row = pos.row;
+          pos2.grid = pos.grid - 1;
+          pos3.row = pos.row + 1;
+          pos3.grid = pos.grid - 1;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[4].name:
-          pos1 = {
-            row: pos.row - 1,
-            grid: pos.grid - 1,
-          };
-          pos2 = {
-            row: pos.row - 1,
-            grid: pos.grid,
-          };
-          pos3 = {
-            row: pos.row + 1,
-            grid: pos.grid,
-          };
-          break;
+          pos1.row = pos.row - 1;
+          pos1.grid = pos.grid - 1;
+          pos2.row = pos.row - 1;
+          pos2.grid = pos.grid;
+          pos3.row = pos.row + 1;
+          pos3.grid = pos.grid;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[5].name:
-          pos1 = {
-            row: pos.row - 1,
-            grid: pos.grid,
-          };
-          pos2 = {
-            row: pos.row + 1,
-            grid: pos.grid - 1,
-          };
-          pos3 = {
-            row: pos.row + 1,
-            grid: pos.grid,
-          };
-          break;
+          pos1.row = pos.row - 1;
+          pos1.grid = pos.grid;
+          pos2.row = pos.row + 1;
+          pos2.grid = pos.grid - 1;
+          pos3.row = pos.row + 1;
+          pos3.grid = pos.grid;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         case minoDatas[6].name:
-          pos1 = {
-            row: pos.row - 1,
-            grid: pos.grid,
-          };
-          pos2 = {
-            row: pos.row,
-            grid: pos.grid + 1,
-          };
-          pos3 = {
-            row: pos.row + 1,
-            grid: pos.grid,
-          };
-          break;
+          pos1.row = pos.row - 1;
+          pos1.grid = pos.grid;
+          pos2.row = pos.row;
+          pos2.grid = pos.grid + 1;
+          pos3.row = pos.row + 1;
+          pos3.grid = pos.grid;
+          return checkSpinMinoConflict(pos, pos1, pos2, pos3, lr);
 
         default:
           break;
       }
       break;
+
+    default:
+      return;
   }
-  if (
-    !checkGridConflict(pos.row, pos.grid) ||
-    !checkGridConflict(pos1.row, pos1.grid) ||
-    !checkGridConflict(pos2.row, pos2.grid) ||
-    !checkGridConflict(pos3.row, pos3.grid)
-  ) {
-  } else if (
-    !checkGridConflict(pos.row, pos.grid) ||
-    !checkGridConflict(pos1.row, pos1.grid) ||
-    !checkGridConflict(pos2.row, pos2.grid) ||
-    !checkGridConflict(pos3.row, pos3.grid)
-  );
 };
 
+/*
+스핀 시 미노 이동 우선순위 (spinPos 기준) (I, O 미노 제외):
+1. 본래 위치
+2. 스핀 방향 앞 같은 높이
+3. 한 칸 아래 (스핀 방향 -> 반대 방향)
+4. 두 칸 아래 (스핀 방향 -> 반대 방향)
+5. 스핀 반대 방향 같은 높이
+6. 한 칸 위 (스핀 방향 -> 방대 방향)
+-> 총 12 케이스
+*/
 const spinLeft = () => {
-  switch (checkSpinConflict(`left`)) {
-    case 1:
+  const checkConflict = checkSpinConflict(`left`);
+  if (gameData.curMino == minoDatas[1].name) {
+    gameData.isSpinned = true;
+    return;
+  }
+  minoRemovePrev();
+  switch (gameData.curMino) {
+    case minoDatas[0].name:
+      switch (checkConflict) {
+        case 1:
+          break;
+
+        case 2:
+          break;
+
+        default:
+          return;
+      }
+      break;
+
+    case minoDatas[2].name:
+    case minoDatas[3].name:
+    case minoDatas[4].name:
+    case minoDatas[5].name:
+    case minoDatas[6].name:
+      switch (checkConflict) {
+        case 1:
+          break;
+
+        case 2:
+          gameData.minoPos.spinPos.grid -= 1;
+          break;
+
+        case 3:
+          gameData.minoPos.spinPos.row += 1;
+          gameData.minoPos.spinPos.grid -= 1;
+          break;
+
+        case 4:
+          gameData.minoPos.spinPos.row += 1;
+          break;
+
+        case 5:
+          gameData.minoPos.spinPos.row += 1;
+          gameData.minoPos.spinPos.grid += 1;
+          break;
+
+        case 6:
+          gameData.minoPos.spinPos.row += 2;
+          gameData.minoPos.spinPos.grid -= 1;
+          break;
+
+        case 7:
+          gameData.minoPos.spinPos.row += 2;
+          break;
+
+        case 8:
+          gameData.minoPos.spinPos.row += 2;
+          gameData.minoPos.spinPos.grid += 1;
+          break;
+
+        case 9:
+          gameData.minoPos.spinPos.grid += 1;
+          break;
+
+        case 10:
+          gameData.minoPos.spinPos.row -= 1;
+          gameData.minoPos.spinPos.grid -= 1;
+          break;
+
+        case 11:
+          gameData.minoPos.spinPos.row -= 1;
+          break;
+
+        case 12:
+          gameData.minoPos.spinPos.row -= 1;
+          gameData.minoPos.spinPos.grid += 1;
+          break;
+
+        default:
+          return;
+      }
       break;
 
     default:
       return;
   }
+  gameData.isSpinned = true;
   gameData.minoSpin = (gameData.minoSpin + 3) % 4;
-  minoRemovePrev();
   setMinoRendGrids();
   rendMino();
 };
 const spinRight = () => {
+  const checkConflict = checkSpinConflict(`right`);
+  if (gameData.curMino == minoDatas[1].name) {
+    gameData.isSpinned = true;
+    return;
+  }
   minoRemovePrev();
+  gameData.isSpinned = true;
   gameData.minoSpin = (gameData.minoSpin + 1) % 4;
   setMinoRendGrids();
   rendMino();
@@ -1429,18 +1523,47 @@ document.addEventListener(`keydown`, (e) => {
       break;
 
     case keyDatas.spinLeft:
+      if (keyDatas.spinLeftPressed) break;
+      keyDatas.spinLeftPressed = true;
       console.log(e.key);
       spinLeft();
       break;
 
     case keyDatas.spinRight:
+      if (keyDatas.spinRightPressed) break;
+      keyDatas.spinRightPressed = true;
       console.log(e.key);
       spinRight();
       break;
 
     case keyDatas.hold:
+      if (keyDatas.holdPressed) break;
+      keyDatas.holdPressed = true;
       console.log(e.key);
       changeHold();
+      break;
+
+    case `F12`:
+      break;
+
+    default:
+      e.preventDefault();
+      break;
+  }
+});
+
+document.addEventListener(`keyup`, (e) => {
+  switch (e.key) {
+    case keyDatas.spinLeft:
+      keyDatas.spinLeftPressed = false;
+      break;
+
+    case keyDatas.spinRight:
+      keyDatas.spinRightPressed = false;
+      break;
+
+    case keyDatas.hold:
+      keyDatas.holdPressed = false;
       break;
 
     case `F12`:
