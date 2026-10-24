@@ -114,6 +114,18 @@ const rendBoard = () => {
             default:
               break;
           }
+          if (gameData.isPlaying) {
+            const gridBorder = [
+              ...gridDatas[row][grid].querySelectorAll(`.grid_border`),
+            ];
+            Array(gridBorder.length)
+              .fill(0)
+              .forEach((x, i) => {
+                gridBorder[i].classList.remove(`grid_border_hidden`);
+                if (gameGridData[row + 4][grid].mino)
+                  gridBorder[i].classList.add(`grid_border_hidden`);
+              });
+          }
         });
     });
 };
@@ -633,7 +645,6 @@ const minoSpawn = () => {
   gameData.minoPos.spinPos = { row: 0, grid: 4 };
   if (gameData.curMino == minoDatas[6].name)
     gameData.minoPos.spinPos = { row: -1, grid: 4 };
-  gameData.holdDone = false;
   gameData.minoSpin = 0;
   gameData.bottomDelay = 0;
   setMinoRendGrids();
@@ -651,6 +662,7 @@ const minoSpawn = () => {
 export const takeoutNext = () => {
   refillBag();
   gameData.curMino = minoBag.shift();
+  gameData.holdDone = false;
   minoSpawn();
   rendNext();
 };
@@ -882,6 +894,15 @@ const checkSpinOutOfBoard = (pos, pos1, pos2, pos3) => {
   );
 };
 
+const setI_MinoSpinned = (pos, pos1, pos2, pos3) => {
+  minoRemovePrev();
+  gameData.minoPos.spinPos = pos;
+  gameData.minoPos.rend1 = pos1;
+  gameData.minoPos.rend2 = pos2;
+  gameData.minoPos.rend3 = pos3;
+  return 1;
+};
+
 /*
 스핀 시 미노 이동 우선순위 (spinPos 기준) (I, O 미노 제외):
 1. 본래 위치
@@ -889,16 +910,25 @@ const checkSpinOutOfBoard = (pos, pos1, pos2, pos3) => {
 3~5. 한 칸 아래 (스핀 방향 -> 반대 방향)
 6~8. 두 칸 아래 (스핀 방향 -> 반대 방향)
 9. 스핀 반대 방향 같은 높이
-10~12. 한 칸 위 (스핀 방향 -> 방대 방향)
+10~12. 한 칸 위 (스핀 방향 -> 반대 방향)
 -> 총 12 케이스
 */
 
-/* 스핀 시 미노 이동 우선순위 (spinPos 기준) (I 미노 전용):
+/* 스핀 시 미노 이동 우선순위 (spinPos) (I 미노 전용):
 1. [스핀 시프트 후] 본래 위치
+<가로 방향>
 2. 스핀 시프트 대각 반전 위치
-3. 
--> 총 12+ 케이스 */
-const checkSpinI_MinoConflict = (pos, pos1, pos2, pos3, lr, shift) => {
+[기준점을 row가 높은 쪽으로 고정]
+3~4. 한 칸 아래 (스핀 방향, 반대 방향 * 2)
+5. 두 칸 아래 스핀 방향
+6. 한 칸 위 반대 방향 * 2
+<세로 방향>
+[기준점 변경된 상태]
+2~3. 두 칸 아래 (반대 방향, 직강)
+4. 스핀 시프트 대각 반전 위치 [기준점 미적용]
+5~6. 한 칸 위 (스핀 방향 * 2, 직상)
+-> 총 2(공통) + 4(가로) + 4(세로) = 10 케이스 */
+const checkSpinI_MinoConflict = (pos, pos1, pos2, pos3, lr, spin) => {
   if (
     !(
       checkSpinOutOfBoard(pos, pos1, pos2, pos3) ||
@@ -908,22 +938,221 @@ const checkSpinI_MinoConflict = (pos, pos1, pos2, pos3, lr, shift) => {
       checkGridConflict(pos3.row, pos3.grid)
     )
   )
-    return 1;
-  else if (
-    !(
-      checkSpinOutOfBoard(
-        { row: pos.row, grid: pos.grid + lr },
-        { row: pos1.row, grid: pos1.grid + lr },
-        { row: pos2.row, grid: pos2.grid + lr },
-        { row: pos3.row, grid: pos3.grid + lr },
-      ) ||
-      checkGridConflict(pos.row, pos.grid + lr) ||
-      checkGridConflict(pos1.row, pos1.grid + lr) ||
-      checkGridConflict(pos2.row, pos2.grid + lr) ||
-      checkGridConflict(pos3.row, pos3.grid + lr)
-    )
-  )
-    return 2;
+    return setI_MinoSpinned(pos, pos1, pos2, pos3);
+  const posAlt = {
+    row: spin === 0 || gameData.minoSpin === 2 ? pos.row + 1 : pos.row - 1,
+    grid: spin === 1 || gameData.minoSpin === 3 ? pos.grid - 1 : pos.grid + 1,
+  };
+  const pos1Alt = {
+    row: spin === 0 || gameData.minoSpin === 2 ? pos1.row + 1 : pos1.row - 1,
+    grid: spin === 1 || gameData.minoSpin === 3 ? pos1.grid - 1 : pos1.grid + 1,
+  };
+  const pos2Alt = {
+    row: spin === 0 || gameData.minoSpin === 2 ? pos2.row + 1 : pos2.row - 1,
+    grid: spin === 1 || gameData.minoSpin === 3 ? pos2.grid - 1 : pos2.grid + 1,
+  };
+  const pos3Alt = {
+    row: spin === 0 || gameData.minoSpin === 2 ? pos3.row + 1 : pos3.row - 1,
+    grid: spin === 1 || gameData.minoSpin === 3 ? pos3.grid - 1 : pos3.grid + 1,
+  };
+  if (pos.row > posAlt.row) {
+    pos = posAlt;
+    pos1 = pos1Alt;
+    pos2 = pos2Alt;
+    pos3 = pos3Alt;
+  }
+  switch (spin) {
+    case 0:
+    case 2:
+      if (
+        !(
+          checkSpinOutOfBoard(posAlt, pos1Alt, pos2Alt, pos3Alt) ||
+          checkGridConflict(posAlt.row, posAlt.grid) ||
+          checkGridConflict(pos1Alt.row, pos1Alt.grid) ||
+          checkGridConflict(pos2Alt.row, pos2Alt.grid) ||
+          checkGridConflict(pos3Alt.row, pos3Alt.grid)
+        )
+      )
+        return setI_MinoSpinned(posAlt, pos1Alt, pos2Alt, pos3Alt);
+      if (
+        !(
+          checkSpinOutOfBoard(
+            { row: pos.row + 1, grid: pos.grid + lr },
+            { row: pos1.row + 1, grid: pos1.grid + lr },
+            { row: pos2.row + 1, grid: pos2.grid + lr },
+            { row: pos3.row + 1, grid: pos3.grid + lr },
+          ) ||
+          checkGridConflict(pos.row + 1, pos.grid + lr) ||
+          checkGridConflict(pos1.row + 1, pos1.grid + lr) ||
+          checkGridConflict(pos2.row + 1, pos2.grid + lr) ||
+          checkGridConflict(pos3.row + 1, pos3.grid + lr)
+        )
+      )
+        return setI_MinoSpinned(
+          { row: pos.row + 1, grid: pos.grid + lr },
+          { row: pos1.row + 1, grid: pos1.grid + lr },
+          { row: pos2.row + 1, grid: pos2.grid + lr },
+          { row: pos3.row + 1, grid: pos3.grid + lr },
+        );
+      if (
+        !(
+          checkSpinOutOfBoard(
+            { row: pos.row + 1, grid: pos.grid - lr * 2 },
+            { row: pos1.row + 1, grid: pos1.grid - lr * 2 },
+            { row: pos2.row + 1, grid: pos2.grid - lr * 2 },
+            { row: pos3.row + 1, grid: pos3.grid - lr * 2 },
+          ) ||
+          checkGridConflict(pos.row + 1, pos.grid - lr * 2) ||
+          checkGridConflict(pos1.row + 1, pos1.grid - lr * 2) ||
+          checkGridConflict(pos2.row + 1, pos2.grid - lr * 2) ||
+          checkGridConflict(pos3.row + 1, pos3.grid - lr * 2)
+        )
+      )
+        return setI_MinoSpinned(
+          { row: pos.row + 1, grid: pos.grid - lr * 2 },
+          { row: pos1.row + 1, grid: pos1.grid - lr * 2 },
+          { row: pos2.row + 1, grid: pos2.grid - lr * 2 },
+          { row: pos3.row + 1, grid: pos3.grid - lr * 2 },
+        );
+      if (
+        !(
+          checkSpinOutOfBoard(
+            { row: pos.row + 2, grid: pos.grid + lr },
+            { row: pos1.row + 2, grid: pos1.grid + lr },
+            { row: pos2.row + 2, grid: pos2.grid + lr },
+            { row: pos3.row + 2, grid: pos3.grid + lr },
+          ) ||
+          checkGridConflict(pos.row + 2, pos.grid + lr) ||
+          checkGridConflict(pos1.row + 2, pos1.grid + lr) ||
+          checkGridConflict(pos2.row + 2, pos2.grid + lr) ||
+          checkGridConflict(pos3.row + 2, pos3.grid + lr)
+        )
+      )
+        return setI_MinoSpinned(
+          { row: pos.row + 2, grid: pos.grid + lr },
+          { row: pos1.row + 2, grid: pos1.grid + lr },
+          { row: pos2.row + 2, grid: pos2.grid + lr },
+          { row: pos3.row + 2, grid: pos3.grid + lr },
+        );
+      if (
+        !(
+          checkSpinOutOfBoard(
+            { row: pos.row - 1, grid: pos.grid - lr * 2 },
+            { row: pos1.row - 1, grid: pos1.grid - lr * 2 },
+            { row: pos2.row - 1, grid: pos2.grid - lr * 2 },
+            { row: pos3.row - 1, grid: pos3.grid - lr * 2 },
+          ) ||
+          checkGridConflict(pos.row - 1, pos.grid - lr * 2) ||
+          checkGridConflict(pos1.row - 1, pos1.grid - lr * 2) ||
+          checkGridConflict(pos2.row - 1, pos2.grid - lr * 2) ||
+          checkGridConflict(pos3.row - 1, pos3.grid - lr * 2)
+        )
+      )
+        return setI_MinoSpinned(
+          { row: pos.row - 1, grid: pos.grid - lr * 2 },
+          { row: pos1.row - 1, grid: pos1.grid - lr * 2 },
+          { row: pos2.row - 1, grid: pos2.grid - lr * 2 },
+          { row: pos3.row - 1, grid: pos3.grid - lr * 2 },
+        );
+      break;
+
+    case 1:
+    case 3:
+      if (
+        !(
+          checkSpinOutOfBoard(
+            { row: pos.row + 2, grid: pos.grid - lr },
+            { row: pos1.row + 2, grid: pos1.grid - lr },
+            { row: pos2.row + 2, grid: pos2.grid - lr },
+            { row: pos3.row + 2, grid: pos3.grid - lr },
+          ) ||
+          checkGridConflict(pos.row + 2, pos.grid - lr) ||
+          checkGridConflict(pos1.row + 2, pos1.grid - lr) ||
+          checkGridConflict(pos2.row + 2, pos2.grid - lr) ||
+          checkGridConflict(pos3.row + 2, pos3.grid - lr)
+        )
+      )
+        return setI_MinoSpinned(
+          { row: pos.row + 2, grid: pos.grid - lr },
+          { row: pos1.row + 2, grid: pos1.grid - lr },
+          { row: pos2.row + 2, grid: pos2.grid - lr },
+          { row: pos3.row + 2, grid: pos3.grid - lr },
+        );
+      if (
+        !(
+          checkSpinOutOfBoard(
+            { row: pos.row + 2, grid: pos.grid },
+            { row: pos1.row + 2, grid: pos1.grid },
+            { row: pos2.row + 2, grid: pos2.grid },
+            { row: pos3.row + 2, grid: pos3.grid },
+          ) ||
+          checkGridConflict(pos.row + 2, pos.grid) ||
+          checkGridConflict(pos1.row + 2, pos1.grid) ||
+          checkGridConflict(pos2.row + 2, pos2.grid) ||
+          checkGridConflict(pos3.row + 2, pos3.grid)
+        )
+      )
+        return setI_MinoSpinned(
+          { row: pos.row + 2, grid: pos.grid },
+          { row: pos1.row + 2, grid: pos1.grid },
+          { row: pos2.row + 2, grid: pos2.grid },
+          { row: pos3.row + 2, grid: pos3.grid },
+        );
+      if (
+        !(
+          checkSpinOutOfBoard(posAlt, pos1Alt, pos2Alt, pos3Alt) ||
+          checkGridConflict(posAlt.row, posAlt.grid) ||
+          checkGridConflict(pos1Alt.row, pos1Alt.grid) ||
+          checkGridConflict(pos2Alt.row, pos2Alt.grid) ||
+          checkGridConflict(pos3Alt.row, pos3Alt.grid)
+        )
+      )
+        return setI_MinoSpinned(posAlt, pos1Alt, pos2Alt, pos3Alt);
+      if (
+        !(
+          checkSpinOutOfBoard(
+            { row: pos.row - 1, grid: pos.grid + lr * 2 },
+            { row: pos1.row - 1, grid: pos1.grid + lr * 2 },
+            { row: pos2.row - 1, grid: pos2.grid + lr * 2 },
+            { row: pos3.row - 1, grid: pos3.grid + lr * 2 },
+          ) ||
+          checkGridConflict(pos.row - 1, pos.grid + lr * 2) ||
+          checkGridConflict(pos1.row - 1, pos1.grid + lr * 2) ||
+          checkGridConflict(pos2.row - 1, pos2.grid + lr * 2) ||
+          checkGridConflict(pos3.row - 1, pos3.grid + lr * 2)
+        )
+      )
+        return setI_MinoSpinned(
+          { row: pos.row - 1, grid: pos.grid + lr * 2 },
+          { row: pos1.row - 1, grid: pos1.grid + lr * 2 },
+          { row: pos2.row - 1, grid: pos2.grid + lr * 2 },
+          { row: pos3.row - 1, grid: pos3.grid + lr * 2 },
+        );
+      if (
+        !(
+          checkSpinOutOfBoard(
+            { row: pos.row - 1, grid: pos.grid },
+            { row: pos1.row - 1, grid: pos1.grid },
+            { row: pos2.row - 1, grid: pos2.grid },
+            { row: pos3.row - 1, grid: pos3.grid },
+          ) ||
+          checkGridConflict(pos.row - 1, pos.grid) ||
+          checkGridConflict(pos1.row - 1, pos1.grid) ||
+          checkGridConflict(pos2.row - 1, pos2.grid) ||
+          checkGridConflict(pos3.row - 1, pos3.grid)
+        )
+      )
+        return setI_MinoSpinned(
+          { row: pos.row - 1, grid: pos.grid },
+          { row: pos1.row - 1, grid: pos1.grid },
+          { row: pos2.row - 1, grid: pos2.grid },
+          { row: pos3.row - 1, grid: pos3.grid },
+        );
+      break;
+
+    default:
+      return 0;
+  }
   return 0;
 };
 const checkSpinMinoConflict = (pos, pos1, pos2, pos3, lr) => {
@@ -937,7 +1166,7 @@ const checkSpinMinoConflict = (pos, pos1, pos2, pos3, lr) => {
     )
   )
     return 1;
-  else if (
+  if (
     !(
       checkSpinOutOfBoard(
         { row: pos.row, grid: pos.grid + lr },
@@ -952,7 +1181,7 @@ const checkSpinMinoConflict = (pos, pos1, pos2, pos3, lr) => {
     )
   )
     return 2;
-  else if (
+  if (
     !(
       checkSpinOutOfBoard(
         { row: pos.row + 1, grid: pos.grid + lr },
@@ -967,7 +1196,7 @@ const checkSpinMinoConflict = (pos, pos1, pos2, pos3, lr) => {
     )
   )
     return 3;
-  else if (
+  if (
     !(
       checkSpinOutOfBoard(
         { row: pos.row + 1, grid: pos.grid },
@@ -982,7 +1211,7 @@ const checkSpinMinoConflict = (pos, pos1, pos2, pos3, lr) => {
     )
   )
     return 4;
-  else if (
+  if (
     !(
       checkSpinOutOfBoard(
         { row: pos.row + 1, grid: pos.grid - lr },
@@ -997,7 +1226,7 @@ const checkSpinMinoConflict = (pos, pos1, pos2, pos3, lr) => {
     )
   )
     return 5;
-  else if (
+  if (
     !(
       checkSpinOutOfBoard(
         { row: pos.row + 2, grid: pos.grid + lr },
@@ -1012,7 +1241,7 @@ const checkSpinMinoConflict = (pos, pos1, pos2, pos3, lr) => {
     )
   )
     return 6;
-  else if (
+  if (
     !(
       checkSpinOutOfBoard(
         { row: pos.row + 2, grid: pos.grid },
@@ -1027,7 +1256,7 @@ const checkSpinMinoConflict = (pos, pos1, pos2, pos3, lr) => {
     )
   )
     return 7;
-  else if (
+  if (
     !(
       checkSpinOutOfBoard(
         { row: pos.row + 2, grid: pos.grid - lr },
@@ -1042,7 +1271,7 @@ const checkSpinMinoConflict = (pos, pos1, pos2, pos3, lr) => {
     )
   )
     return 8;
-  else if (
+  if (
     !(
       checkSpinOutOfBoard(
         { row: pos.row, grid: pos.grid - lr },
@@ -1057,7 +1286,7 @@ const checkSpinMinoConflict = (pos, pos1, pos2, pos3, lr) => {
     )
   )
     return 9;
-  else if (
+  if (
     !(
       checkSpinOutOfBoard(
         { row: pos.row - 1, grid: pos.grid + lr },
@@ -1072,7 +1301,7 @@ const checkSpinMinoConflict = (pos, pos1, pos2, pos3, lr) => {
     )
   )
     return 10;
-  else if (
+  if (
     !(
       checkSpinOutOfBoard(
         { row: pos.row - 1, grid: pos.grid },
@@ -1087,7 +1316,7 @@ const checkSpinMinoConflict = (pos, pos1, pos2, pos3, lr) => {
     )
   )
     return 11;
-  else if (
+  if (
     !(
       checkSpinOutOfBoard(
         { row: pos.row - 1, grid: pos.grid - lr },
@@ -1106,7 +1335,10 @@ const checkSpinMinoConflict = (pos, pos1, pos2, pos3, lr) => {
 };
 
 const checkSpinConflict = (direction) => {
-  const pos = gameData.minoPos.spinPos;
+  const pos = {
+    row: gameData.minoPos.spinPos.row,
+    grid: gameData.minoPos.spinPos.grid,
+  };
   const pos1 = { row: undefined, grid: undefined };
   const pos2 = { row: undefined, grid: undefined };
   const pos3 = { row: undefined, grid: undefined };
@@ -1127,7 +1359,7 @@ const checkSpinConflict = (direction) => {
           pos2.grid = pos.grid + 1;
           pos3.row = pos.row;
           pos3.grid = pos.grid + 2;
-          return checkSpinI_MinoConflict(pos, pos1, pos2, pos3, lr);
+          return checkSpinI_MinoConflict(pos, pos1, pos2, pos3, lr, spin);
 
         case minoDatas[2].name:
           pos1.row = pos.row;
@@ -1190,7 +1422,7 @@ const checkSpinConflict = (direction) => {
           pos2.grid = pos.grid;
           pos3.row = pos.row + 2;
           pos3.grid = pos.grid;
-          return checkSpinI_MinoConflict(pos, pos1, pos2, pos3, lr);
+          return checkSpinI_MinoConflict(pos, pos1, pos2, pos3, lr, spin);
 
         case minoDatas[2].name:
           pos1.row = pos.row - 1;
@@ -1253,7 +1485,7 @@ const checkSpinConflict = (direction) => {
           pos2.grid = pos.grid - 1;
           pos3.row = pos.row;
           pos3.grid = pos.grid + 1;
-          return checkSpinI_MinoConflict(pos, pos1, pos2, pos3, lr);
+          return checkSpinI_MinoConflict(pos, pos1, pos2, pos3, lr, spin);
 
         case minoDatas[2].name:
           pos1.row = pos.row;
@@ -1316,7 +1548,7 @@ const checkSpinConflict = (direction) => {
           pos2.grid = pos.grid;
           pos3.row = pos.row + 1;
           pos3.grid = pos.grid;
-          return checkSpinI_MinoConflict(pos, pos1, pos2, pos3, lr);
+          return checkSpinI_MinoConflict(pos, pos1, pos2, pos3, lr, spin);
 
         case minoDatas[2].name:
           pos1.row = pos.row - 1;
@@ -1380,9 +1612,24 @@ const checkSpinConflict = (direction) => {
 3. 한 칸 아래 (스핀 방향 -> 반대 방향)
 4. 두 칸 아래 (스핀 방향 -> 반대 방향)
 5. 스핀 반대 방향 같은 높이
-6. 한 칸 위 (스핀 방향 -> 방대 방향)
+6. 한 칸 위 (스핀 방향 -> 반대 방향)
 -> 총 12 케이스
 */
+
+/* 스핀 시 미노 이동 우선순위 (spinPos) (I 미노 전용):
+1. [스핀 시프트 후] 본래 위치
+<가로 방향>
+2. 스핀 시프트 대각 반전 위치
+[기준점을 row가 높은 쪽으로 고정]
+3~4. 한 칸 아래 (스핀 방향, 반대 방향 * 2)
+5. 두 칸 아래 스핀 방향
+6. 한 칸 위 반대 방향 * 2
+<세로 방향>
+[기준점 변경된 상태]
+2~3. 두 칸 아래 (반대 방향, 직강)
+4. 스핀 시프트 대각 반전 위치 [기준점 미적용]
+5~6. 한 칸 위 (스핀 방향 * 2, 직상)
+-> 총 2(공통) + 4(가로) + 4(세로) = 10 케이스 */
 const spinLeft = () => {
   const checkConflict = checkSpinConflict(`left`);
   if (gameData.curMino == minoDatas[1].name) {
@@ -1392,15 +1639,9 @@ const spinLeft = () => {
   minoRemovePrev();
   switch (gameData.curMino) {
     case minoDatas[0].name:
-      switch (checkConflict) {
-        case 1:
-          break;
-
-        case 2:
-          break;
-
-        default:
-          return;
+      if (!checkConflict) {
+        rendMino();
+        return;
       }
       break;
 
@@ -1464,11 +1705,13 @@ const spinLeft = () => {
           break;
 
         default:
+          rendMino();
           return;
       }
       break;
 
     default:
+      rendMino();
       return;
   }
   gameData.isSpinned = true;
@@ -1483,6 +1726,83 @@ const spinRight = () => {
     return;
   }
   minoRemovePrev();
+  switch (gameData.curMino) {
+    case minoDatas[0].name:
+      if (!checkConflict) {
+        rendMino();
+        return;
+      }
+      break;
+
+    case minoDatas[2].name:
+    case minoDatas[3].name:
+    case minoDatas[4].name:
+    case minoDatas[5].name:
+    case minoDatas[6].name:
+      switch (checkConflict) {
+        case 1:
+          break;
+
+        case 2:
+          gameData.minoPos.spinPos.grid += 1;
+          break;
+
+        case 3:
+          gameData.minoPos.spinPos.row += 1;
+          gameData.minoPos.spinPos.grid += 1;
+          break;
+
+        case 4:
+          gameData.minoPos.spinPos.row += 1;
+          break;
+
+        case 5:
+          gameData.minoPos.spinPos.row += 1;
+          gameData.minoPos.spinPos.grid -= 1;
+          break;
+
+        case 6:
+          gameData.minoPos.spinPos.row += 2;
+          gameData.minoPos.spinPos.grid += 1;
+          break;
+
+        case 7:
+          gameData.minoPos.spinPos.row += 2;
+          break;
+
+        case 8:
+          gameData.minoPos.spinPos.row += 2;
+          gameData.minoPos.spinPos.grid -= 1;
+          break;
+
+        case 9:
+          gameData.minoPos.spinPos.grid -= 1;
+          break;
+
+        case 10:
+          gameData.minoPos.spinPos.row -= 1;
+          gameData.minoPos.spinPos.grid += 1;
+          break;
+
+        case 11:
+          gameData.minoPos.spinPos.row -= 1;
+          break;
+
+        case 12:
+          gameData.minoPos.spinPos.row -= 1;
+          gameData.minoPos.spinPos.grid -= 1;
+          break;
+
+        default:
+          rendMino();
+          return;
+      }
+      break;
+
+    default:
+      rendMino();
+      return;
+  }
   gameData.isSpinned = true;
   gameData.minoSpin = (gameData.minoSpin + 1) % 4;
   setMinoRendGrids();

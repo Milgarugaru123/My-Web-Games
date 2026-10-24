@@ -89,13 +89,41 @@ export const makeMino = (minoName) => {
   return mino;
 };
 
-export const gridDatas = new Array(20).fill(0).map((row) => {
+export const gridDatas = new Array(20).fill(0).map((x, row) => {
   return Array(10)
     .fill(0)
-    .map((grid) => {
+    .map((y, grid) => {
       const gridUnit = document.createElement(`div`);
       gridUnit.classList.add(`grid_unit`);
       tetrisScreen.appendChild(gridUnit);
+      if (row > 0 && grid > 0) {
+        const gridBorderTopLeft = document.createElement(`div`);
+        gridBorderTopLeft.classList.add(`grid_border`);
+        gridBorderTopLeft.classList.add(`grid_border_top_left`);
+        gridBorderTopLeft.classList.add(`grid_border_hidden`);
+        gridUnit.appendChild(gridBorderTopLeft);
+      }
+      if (row > 0 && grid < 9) {
+        const gridBorderTopRight = document.createElement(`div`);
+        gridBorderTopRight.classList.add(`grid_border`);
+        gridBorderTopRight.classList.add(`grid_border_top_right`);
+        gridBorderTopRight.classList.add(`grid_border_hidden`);
+        gridUnit.appendChild(gridBorderTopRight);
+      }
+      if (row < 19 && grid > 0) {
+        const gridBorderBottomLeft = document.createElement(`div`);
+        gridBorderBottomLeft.classList.add(`grid_border`);
+        gridBorderBottomLeft.classList.add(`grid_border_bottom_left`);
+        gridBorderBottomLeft.classList.add(`grid_border_hidden`);
+        gridUnit.appendChild(gridBorderBottomLeft);
+      }
+      if (row < 19 && grid < 9) {
+        const gridBorderBottomRight = document.createElement(`div`);
+        gridBorderBottomRight.classList.add(`grid_border`);
+        gridBorderBottomRight.classList.add(`grid_border_bottom_right`);
+        gridBorderBottomRight.classList.add(`grid_border_hidden`);
+        gridUnit.appendChild(gridBorderBottomRight);
+      }
       return gridUnit;
     });
 });
