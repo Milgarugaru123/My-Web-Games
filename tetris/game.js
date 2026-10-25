@@ -8,6 +8,10 @@ import {
 } from "./mino_datas.js";
 
 const keyDatas = {
+  leftPressed: false,
+  rightPressed: false,
+  downPressed: false,
+  dropPressed: false,
   spinLeft: `s`,
   spinLeftPressed: false,
   spinRight: `d`,
@@ -15,13 +19,18 @@ const keyDatas = {
   hold: `Shift`,
   holdPressed: false,
 };
-
+const intervalId = {
+  leftKey: undefined,
+  rightKey: undefined,
+  downKey: undefined,
+  minoFall: [],
+};
 export const gameData = {
   isPlaying: false,
   highscore: 0,
   score: 0,
   gameSpeed: 0,
-  initGameSpeed: 1000,
+  initGameSpeed: 1500,
   curMino: undefined,
   minoPos: {
     spinPos: undefined,
@@ -33,8 +42,9 @@ export const gameData = {
   holdMino: undefined,
   holdDone: false,
   isSpinned: false,
+  minoDownInterval: 30, // init: 30~50
+  minoSideMoveInterval: 80, // init: 70~80
   bottomDelay: 0,
-  minoIntervalID: undefined,
 };
 export const gameGridData = new Array(24).fill(0).map((row) => {
   return Array(10)
@@ -43,6 +53,14 @@ export const gameGridData = new Array(24).fill(0).map((row) => {
       return { mino: undefined, isMoving: false };
     });
 });
+
+export const minoFall = () => {
+  if (!gameData.isPlaying) return;
+  intervalId.minoFall = setTimeout(() => {
+    keyPressDown();
+    minoFall();
+  }, gameData.gameSpeed);
+};
 
 export const rendNext = () => {
   nextCase.innerHTML = ``;
@@ -640,6 +658,41 @@ const checkMoveConflict = (move = `stop`) => {
   }
 };
 
+const checkRowComplete = () => {
+  Array(24)
+    .fill(0)
+    .forEach((x, row) => {
+      const rowFilled = Array(10)
+        .fill(0)
+        .map((y, grid) => {
+          if (gameGridData[row][grid].mino) return 1;
+          return 0;
+        })
+        .reduce((a, b) => a + b);
+      if (rowFilled === 10) {
+        if (row >= 4) {
+          Array(10)
+            .fill(0)
+            .forEach((y, grid) => {
+              minoOffGrid(row - 4, grid);
+            });
+        }
+        Array(row)
+          .fill(0)
+          .forEach((x2, row2) => {
+            Array(10)
+              .fill(0)
+              .forEach((y2, grid2) => {
+                gameGridData[row - row2][grid2] = {
+                  mino: gameGridData[row - row2 - 1][grid2].mino,
+                  isMoving: gameGridData[row - row2 - 1][grid2].isMoving,
+                };
+              });
+          });
+      }
+    });
+};
+
 const minoSpawn = () => {
   minoRemovePrev();
   gameData.minoPos.spinPos = { row: 0, grid: 4 };
@@ -660,6 +713,7 @@ const minoSpawn = () => {
 
 /* 미노 회전축 스폰 위치 기준점 = gridDatas[0][4] (gameGridData[4][4]) */
 export const takeoutNext = () => {
+  checkRowComplete();
   refillBag();
   gameData.curMino = minoBag.shift();
   gameData.holdDone = false;
@@ -903,8 +957,7 @@ const setI_MinoSpinned = (pos, pos1, pos2, pos3) => {
   return 1;
 };
 
-/*
-스핀 시 미노 이동 우선순위 (spinPos 기준) (I, O 미노 제외):
+/* 스핀 시 미노 이동 우선순위 (spinPos 기준) (I, O 미노 제외):
 1. 본래 위치
 2. 스핀 방향 앞 같은 높이
 3~5. 한 칸 아래 (스핀 방향 -> 반대 방향)
@@ -927,7 +980,8 @@ const setI_MinoSpinned = (pos, pos1, pos2, pos3) => {
 2~3. 두 칸 아래 (반대 방향, 직강)
 4. 스핀 시프트 대각 반전 위치 [기준점 미적용]
 5~6. 한 칸 위 (스핀 방향 * 2, 직상)
--> 총 2(공통) + 4(가로) + 4(세로) = 10 케이스 */
+-> 총 2(공통) + 4(가로) + 4(세로) = 10 케이스
+*/
 const checkSpinI_MinoConflict = (pos, pos1, pos2, pos3, lr, spin) => {
   if (
     !(
@@ -1605,8 +1659,7 @@ const checkSpinConflict = (direction) => {
   }
 };
 
-/*
-스핀 시 미노 이동 우선순위 (spinPos 기준) (I, O 미노 제외):
+/* 스핀 시 미노 이동 우선순위 (spinPos 기준) (I, O 미노 제외):
 1. 본래 위치
 2. 스핀 방향 앞 같은 높이
 3. 한 칸 아래 (스핀 방향 -> 반대 방향)
@@ -1629,7 +1682,8 @@ const checkSpinConflict = (direction) => {
 2~3. 두 칸 아래 (반대 방향, 직강)
 4. 스핀 시프트 대각 반전 위치 [기준점 미적용]
 5~6. 한 칸 위 (스핀 방향 * 2, 직상)
--> 총 2(공통) + 4(가로) + 4(세로) = 10 케이스 */
+-> 총 2(공통) + 4(가로) + 4(세로) = 10 케이스
+*/
 const spinLeft = () => {
   const checkConflict = checkSpinConflict(`left`);
   if (gameData.curMino == minoDatas[1].name) {
@@ -1820,24 +1874,43 @@ document.addEventListener(`keydown`, (e) => {
   switch (e.key) {
     case `Down`: // IE/Edge에서 사용되는 값
     case `ArrowDown`:
+      if (keyDatas.downPressed) break;
+      keyDatas.downPressed = true;
       console.log(e.key);
       keyPressDown();
+      intervalId.downKey = setInterval(() => {
+        keyPressDown();
+      }, gameData.minoDownInterval);
       break;
 
     case `Left`: // IE/Edge에서 사용되는 값
     case `ArrowLeft`:
+      if (keyDatas.leftPressed) break;
+      keyDatas.leftPressed = true;
+      clearInterval(intervalId.rightKey);
       console.log(e.key);
       keyPressLeft();
+      intervalId.leftKey = setInterval(() => {
+        keyPressLeft();
+      }, gameData.minoSideMoveInterval);
       break;
 
     case `Right`: // IE/Edge에서 사용되는 값
     case `ArrowRight`:
+      if (keyDatas.rightPressed) break;
+      keyDatas.rightPressed = true;
+      clearInterval(intervalId.leftKey);
       console.log(e.key);
       keyPressRight();
+      intervalId.rightKey = setInterval(() => {
+        keyPressRight();
+      }, gameData.minoSideMoveInterval);
       break;
 
     case `Spacebar`: // 옛날 브라우저가 리턴할 가능성 있음
     case ` `:
+      if (keyDatas.dropPressed) break;
+      keyDatas.dropPressed = true;
       console.log(e.key);
       keyPressSpacebar();
       break;
@@ -1874,6 +1947,29 @@ document.addEventListener(`keydown`, (e) => {
 
 document.addEventListener(`keyup`, (e) => {
   switch (e.key) {
+    case `Down`: // IE/Edge에서 사용되는 값
+    case `ArrowDown`:
+      clearInterval(intervalId.downKey);
+      keyDatas.downPressed = false;
+      break;
+
+    case `Left`: // IE/Edge에서 사용되는 값
+    case `ArrowLeft`:
+      clearInterval(intervalId.leftKey);
+      keyDatas.leftPressed = false;
+      break;
+
+    case `Right`: // IE/Edge에서 사용되는 값
+    case `ArrowRight`:
+      clearInterval(intervalId.rightKey);
+      keyDatas.rightPressed = false;
+      break;
+
+    case `Spacebar`: // 옛날 브라우저가 리턴할 가능성 있음
+    case ` `:
+      keyDatas.dropPressed = false;
+      break;
+
     case keyDatas.spinLeft:
       keyDatas.spinLeftPressed = false;
       break;
@@ -1900,5 +1996,6 @@ console.log(
   // rendHold,
   gameData,
   gameGridData,
+  // minoFall,
   // takeoutNext,
 );
