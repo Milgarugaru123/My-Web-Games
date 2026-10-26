@@ -23,7 +23,7 @@ const intervalId = {
   leftKey: undefined,
   rightKey: undefined,
   downKey: undefined,
-  minoFall: [],
+  minoFall: undefined,
 };
 export const gameData = {
   isPlaying: false,
@@ -45,6 +45,7 @@ export const gameData = {
   minoDownInterval: 30, // init: 30~50
   minoSideMoveInterval: 80, // init: 70~80
   bottomDelay: 0,
+  maxBottomDelay: 10,
 };
 export const gameGridData = new Array(24).fill(0).map((row) => {
   return Array(10)
@@ -54,11 +55,27 @@ export const gameGridData = new Array(24).fill(0).map((row) => {
     });
 });
 
-export const minoFall = () => {
+const minoFall = () => {
   if (!gameData.isPlaying) return;
   intervalId.minoFall = setTimeout(() => {
-    keyPressDown();
-    minoFall();
+    const isConflict = keyPressDown();
+    if (isConflict) gameData.bottomDelay += 1;
+    if (gameData.bottomDelay < Math.ceil(gameData.maxBottomDelay / 4))
+      minoFall();
+    else if (
+      gameData.bottomDelay < Math.ceil(gameData.maxBottomDelay / 2) &&
+      (gameData.isSpinned || keyDatas.leftPressed || keyDatas.rightPressed)
+    )
+      minoFall();
+    else if (
+      gameData.bottomDelay < gameData.maxBottomDelay &&
+      gameData.isSpinned
+    )
+      minoFall();
+    else {
+      fixCurMino();
+      takeoutNext();
+    }
   }, gameData.gameSpeed);
 };
 
@@ -146,6 +163,22 @@ const rendBoard = () => {
           }
         });
     });
+};
+
+const fixCurMino = () => {
+  gameGridData[gameData.minoPos.spinPos.row + 4][
+    gameData.minoPos.spinPos.grid
+  ].isMoving = false;
+  gameGridData[gameData.minoPos.rend1.row + 4][
+    gameData.minoPos.rend1.grid
+  ].isMoving = false;
+  gameGridData[gameData.minoPos.rend2.row + 4][
+    gameData.minoPos.rend2.grid
+  ].isMoving = false;
+  gameGridData[gameData.minoPos.rend3.row + 4][
+    gameData.minoPos.rend3.grid
+  ].isMoving = false;
+  gameData.minoPos.spinPos = undefined;
 };
 
 const minoOffGrid = (row, grid) => {
@@ -658,6 +691,7 @@ const checkMoveConflict = (move = `stop`) => {
   }
 };
 
+/* 완성된 줄 지우기 */
 const checkRowComplete = () => {
   Array(24)
     .fill(0)
@@ -699,6 +733,7 @@ const minoSpawn = () => {
   if (gameData.curMino == minoDatas[6].name)
     gameData.minoPos.spinPos = { row: -1, grid: 4 };
   gameData.minoSpin = 0;
+  gameData.isSpinned = false;
   gameData.bottomDelay = 0;
   setMinoRendGrids();
   const checkConflict = checkMoveConflict();
@@ -718,6 +753,7 @@ export const takeoutNext = () => {
   gameData.curMino = minoBag.shift();
   gameData.holdDone = false;
   minoSpawn();
+  minoFall();
   rendNext();
 };
 
@@ -911,19 +947,7 @@ const minoDrop = () => {
 };
 const keyPressSpacebar = () => {
   minoDrop();
-  gameGridData[gameData.minoPos.spinPos.row + 4][
-    gameData.minoPos.spinPos.grid
-  ].isMoving = false;
-  gameGridData[gameData.minoPos.rend1.row + 4][
-    gameData.minoPos.rend1.grid
-  ].isMoving = false;
-  gameGridData[gameData.minoPos.rend2.row + 4][
-    gameData.minoPos.rend2.grid
-  ].isMoving = false;
-  gameGridData[gameData.minoPos.rend3.row + 4][
-    gameData.minoPos.rend3.grid
-  ].isMoving = false;
-  gameData.minoPos.spinPos = undefined;
+  fixCurMino();
   takeoutNext();
 };
 
@@ -1996,6 +2020,5 @@ console.log(
   // rendHold,
   gameData,
   gameGridData,
-  // minoFall,
   // takeoutNext,
 );

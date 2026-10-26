@@ -11,7 +11,6 @@ import {
   rendHold,
   gameData,
   gameGridData,
-  minoFall,
   takeoutNext,
 } from "./game.js";
 import "./query.js";
@@ -25,9 +24,8 @@ const gamePreview = () => {
 };
 
 const gameStart = () => {
-  takeoutNext();
   gameData.gameSpeed = gameData.initGameSpeed;
-  minoFall();
+  takeoutNext();
   console.log(gameData);
 };
 
