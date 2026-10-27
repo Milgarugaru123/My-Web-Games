@@ -57,9 +57,12 @@ export const gameGridData = new Array(24).fill(0).map((row) => {
 
 const minoFall = () => {
   if (!gameData.isPlaying) return;
+  gameData.isSpinned = false;
   intervalId.minoFall = setTimeout(() => {
     const isConflict = keyPressDown();
     if (isConflict) gameData.bottomDelay += 1;
+    else if (gameData.bottomDelay > 0) gameData.bottomDelay += 0.5;
+    console.log(gameData.bottomDelay);
     if (gameData.bottomDelay < Math.ceil(gameData.maxBottomDelay / 4))
       minoFall();
     else if (
@@ -748,6 +751,7 @@ const minoSpawn = () => {
 
 /* 미노 회전축 스폰 위치 기준점 = gridDatas[0][4] (gameGridData[4][4]) */
 export const takeoutNext = () => {
+  clearTimeout(intervalId.minoFall);
   checkRowComplete();
   refillBag();
   gameData.curMino = minoBag.shift();
@@ -987,8 +991,16 @@ const setI_MinoSpinned = (pos, pos1, pos2, pos3) => {
 3~5. 한 칸 아래 (스핀 방향 -> 반대 방향)
 6~8. 두 칸 아래 (스핀 방향 -> 반대 방향)
 9. 스핀 반대 방향 같은 높이
-10~12. 한 칸 위 (스핀 방향 -> 반대 방향)
+10~12. 한 칸 위 (직상, 스핀 방향, 반대 방향)
 -> 총 12 케이스
+*/
+
+/* T 스핀 스페셜 (기본 우선순위에서 약간 변형됨):
+1. 본래 위치
+2~3. 같은 높이 (반대 방향 -> 스핀 방향)
+4~6. 한 칸 아래 (스핀 방향 -> 반대 방향)
+7~9. 두 칸 아래 (스핀 방향 -> 반대 방향)
+10~12. 한 칸 위 (직상, 스핀 방향, 반대 방향)
 */
 
 /* 스핀 시 미노 이동 우선순위 (spinPos) (I 미노 전용):
@@ -1245,6 +1257,22 @@ const checkSpinMinoConflict = (pos, pos1, pos2, pos3, lr) => {
   )
     return 1;
   if (
+    gameData.curMino == minoDatas[6].name &&
+    !(
+      checkSpinOutOfBoard(
+        { row: pos.row, grid: pos.grid - lr },
+        { row: pos1.row, grid: pos1.grid - lr },
+        { row: pos2.row, grid: pos2.grid - lr },
+        { row: pos3.row, grid: pos3.grid - lr },
+      ) ||
+      checkGridConflict(pos.row, pos.grid - lr) ||
+      checkGridConflict(pos1.row, pos1.grid - lr) ||
+      checkGridConflict(pos2.row, pos2.grid - lr) ||
+      checkGridConflict(pos3.row, pos3.grid - lr)
+    )
+  )
+    return 9;
+  if (
     !(
       checkSpinOutOfBoard(
         { row: pos.row, grid: pos.grid + lr },
@@ -1350,6 +1378,7 @@ const checkSpinMinoConflict = (pos, pos1, pos2, pos3, lr) => {
   )
     return 8;
   if (
+    gameData.curMino !== minoDatas[6].name &&
     !(
       checkSpinOutOfBoard(
         { row: pos.row, grid: pos.grid - lr },
@@ -1367,21 +1396,6 @@ const checkSpinMinoConflict = (pos, pos1, pos2, pos3, lr) => {
   if (
     !(
       checkSpinOutOfBoard(
-        { row: pos.row - 1, grid: pos.grid + lr },
-        { row: pos1.row - 1, grid: pos1.grid + lr },
-        { row: pos2.row - 1, grid: pos2.grid + lr },
-        { row: pos3.row - 1, grid: pos3.grid + lr },
-      ) ||
-      checkGridConflict(pos.row - 1, pos.grid + lr) ||
-      checkGridConflict(pos1.row - 1, pos1.grid + lr) ||
-      checkGridConflict(pos2.row - 1, pos2.grid + lr) ||
-      checkGridConflict(pos3.row - 1, pos3.grid + lr)
-    )
-  )
-    return 10;
-  if (
-    !(
-      checkSpinOutOfBoard(
         { row: pos.row - 1, grid: pos.grid },
         { row: pos1.row - 1, grid: pos1.grid },
         { row: pos2.row - 1, grid: pos2.grid },
@@ -1391,6 +1405,21 @@ const checkSpinMinoConflict = (pos, pos1, pos2, pos3, lr) => {
       checkGridConflict(pos1.row - 1, pos1.grid) ||
       checkGridConflict(pos2.row - 1, pos2.grid) ||
       checkGridConflict(pos3.row - 1, pos3.grid)
+    )
+  )
+    return 10;
+  if (
+    !(
+      checkSpinOutOfBoard(
+        { row: pos.row - 1, grid: pos.grid + lr },
+        { row: pos1.row - 1, grid: pos1.grid + lr },
+        { row: pos2.row - 1, grid: pos2.grid + lr },
+        { row: pos3.row - 1, grid: pos3.grid + lr },
+      ) ||
+      checkGridConflict(pos.row - 1, pos.grid + lr) ||
+      checkGridConflict(pos1.row - 1, pos1.grid + lr) ||
+      checkGridConflict(pos2.row - 1, pos2.grid + lr) ||
+      checkGridConflict(pos3.row - 1, pos3.grid + lr)
     )
   )
     return 11;
@@ -1689,8 +1718,16 @@ const checkSpinConflict = (direction) => {
 3. 한 칸 아래 (스핀 방향 -> 반대 방향)
 4. 두 칸 아래 (스핀 방향 -> 반대 방향)
 5. 스핀 반대 방향 같은 높이
-6. 한 칸 위 (스핀 방향 -> 반대 방향)
+6. 한 칸 위 (직상, 스핀 방향, 반대 방향)
 -> 총 12 케이스
+*/
+
+/* T 스핀 스페셜 (기본 우선순위에서 약간 변형됨):
+1. 본래 위치
+2~3. 같은 높이 (반대 방향 -> 스핀 방향)
+4~6. 한 칸 아래 (스핀 방향 -> 반대 방향)
+7~9. 두 칸 아래 (스핀 방향 -> 반대 방향)
+10~12. 한 칸 위 (직상, 스핀 방향, 반대 방향)
 */
 
 /* 스핀 시 미노 이동 우선순위 (spinPos) (I 미노 전용):
@@ -1770,11 +1807,11 @@ const spinLeft = () => {
 
         case 10:
           gameData.minoPos.spinPos.row -= 1;
-          gameData.minoPos.spinPos.grid -= 1;
           break;
 
         case 11:
           gameData.minoPos.spinPos.row -= 1;
+          gameData.minoPos.spinPos.grid -= 1;
           break;
 
         case 12:
@@ -1859,11 +1896,11 @@ const spinRight = () => {
 
         case 10:
           gameData.minoPos.spinPos.row -= 1;
-          gameData.minoPos.spinPos.grid += 1;
           break;
 
         case 11:
           gameData.minoPos.spinPos.row -= 1;
+          gameData.minoPos.spinPos.grid += 1;
           break;
 
         case 12:

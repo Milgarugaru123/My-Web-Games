@@ -95,6 +95,7 @@ main {
   background-color: rgb(106, 99, 124);
   padding: 5lvh 5lvw;
   margin: 0;
+  overflow: hidden;
 }
 
 .game_ground {
@@ -316,13 +317,60 @@ main {
   width: 80%;
   min-width: 200px;
   height: fit-content;
+  max-height: 100%;
   border: 5px solid rgb(3, 202, 186);
   border-radius: 20px;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
   letter-spacing: 0.2em;
-  background-color: white;
-  padding: 5px;
+  background-color: rgba(253, 250, 255, 0.9);
+  padding: 10px;
+  gap: 20px;
   /* pointer-events: none; */
+}
+
+.scores {
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  pointer-events: none;
+}
+
+.scores span {
+  font-weight: 900;
+  margin-right: 8px;
+}
+
+.scores span::before {
+  content: "・";
+  color: red;
+  font-size: 20px;
+}
+
+.score {
+}
+
+.highscore {
+}
+
+.restart {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.restart > button {
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border: 3px solid rgb(3, 202, 186);
+  background-color: rgba(72, 13, 87, 0.8);
+  border-radius: 16px;
+  padding: 8px 16px;
+  cursor: pointer;
 }
 
 /* 기타 시스템 UI */
