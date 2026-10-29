@@ -317,7 +317,7 @@ main {
   width: 80%;
   min-width: 200px;
   height: fit-content;
-  max-height: 100%;
+  max-height: 38lvh;
   border: 5px solid rgb(3, 202, 186);
   border-radius: 20px;
   display: flex;
@@ -326,7 +326,7 @@ main {
   letter-spacing: 0.2em;
   background-color: rgba(253, 250, 255, 0.9);
   padding: 10px;
-  gap: 20px;
+  gap: 24px;
   /* pointer-events: none; */
 }
 
@@ -339,30 +339,39 @@ main {
   pointer-events: none;
 }
 
-.scores span {
+.scores > div {
+  height: max-content;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  white-space: nowrap;
+  row-gap: 4px;
+}
+
+.scores > div > div {
+  color: rgb(168, 28, 211);
+  font-size: 24px;
   font-weight: 900;
-  margin-right: 8px;
 }
 
-.scores span::before {
-  content: "・";
-  color: red;
-  font-size: 20px;
+.scores span {
+  height: max-content;
+  font-weight: 900;
 }
 
-.score {
-}
-
-.highscore {
+.spin_review {
+  width: 100%;
+  height: calc(27lvh - 120px);
+  min-height: 12lvh;
+  border-radius: 1lvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  background-color: rgba(122, 122, 122, 0.2);
 }
 
 .restart {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.restart > button {
   color: white;
   font-size: 16px;
   font-weight: bold;
@@ -370,7 +379,12 @@ main {
   background-color: rgba(72, 13, 87, 0.8);
   border-radius: 16px;
   padding: 8px 16px;
+  margin: 0 auto 8px;
   cursor: pointer;
+}
+
+.info_hidden {
+  display: none;
 }
 
 /* 기타 시스템 UI */

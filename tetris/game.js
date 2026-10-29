@@ -1,4 +1,13 @@
-import { holdCase, tetrisScreen, nextCase, furtherNextCase } from "./query.js";
+import {
+  holdCase,
+  tetrisScreen,
+  nextCase,
+  furtherNextCase,
+  curScore,
+  highScore,
+  spinReview,
+  restartBtn,
+} from "./query.js";
 import {
   minoDatas,
   makeMino,
@@ -619,8 +628,9 @@ const setMinoRendGrids = () => {
 };
 
 const gameOver = () => {
+  gameData.isPlaying = false;
   window.alert(`Game Over!`);
-  window.location.reload();
+  toggleRestartBtn();
 };
 
 const checkGridConflict = (row, grid) => {
@@ -725,6 +735,11 @@ const checkRowComplete = () => {
                   isMoving: gameGridData[row - row2 - 1][grid2].isMoving,
                 };
               });
+          });
+        Array(10)
+          .fill(0)
+          .forEach((y, grid) => {
+            gameGridData[0][grid] = { mino: undefined, isMoving: undefined };
           });
       }
     });
@@ -914,6 +929,10 @@ const changeHold = () => {
 
 const keyPressDown = () => {
   if (checkMoveConflict(`down`)) return true;
+  if (keyDatas.downPressed) {
+    gameData.score += 300; //　임시 값
+    rendScore();
+  }
   minoRemovePrev();
   gameData.minoPos.spinPos = {
     row: gameData.minoPos.spinPos.row + 1,
@@ -1924,6 +1943,28 @@ const spinRight = () => {
   rendMino();
 };
 
+export const toggleRestartBtn = (toggle = `on`) => {
+  if (toggle == `on`) {
+    spinReview.classList.add(`info_hidden`);
+    restartBtn.classList.remove(`info_hidden`);
+  } else {
+    spinReview.classList.remove(`info_hidden`);
+    restartBtn.classList.add(`info_hidden`);
+  }
+};
+
+export const rendScore = () => {
+  const scoreStr = [...String(gameData.score)];
+  const score = scoreStr
+    .map((x, i) => {
+      if ((scoreStr.length - i) % 3 === 1 && i + 1 !== scoreStr.length)
+        return x + `,`;
+      else return x;
+    })
+    .reduce((x, y) => x + y);
+  curScore.innerHTML = score;
+};
+
 document.addEventListener(`keydown`, (e) => {
   // console.log(e.keyCode);
   if (!gameData.isPlaying && e.key !== `F12`) {
@@ -2058,4 +2099,6 @@ console.log(
   gameData,
   gameGridData,
   // takeoutNext,
+  // toggleRestartBtn,
+  // rendScore,
 );
