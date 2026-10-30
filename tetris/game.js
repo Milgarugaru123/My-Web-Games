@@ -15,6 +15,13 @@ import {
   minoBag,
   refillBag,
 } from "./mino_datas.js";
+import {
+  scoreData,
+  rendScore,
+  softDropScore,
+  hardDropScore,
+  lineClearScore,
+} from "./score_system.js";
 
 const keyDatas = {
   leftPressed: false,
@@ -706,6 +713,7 @@ const checkMoveConflict = (move = `stop`) => {
 
 /* 완성된 줄 지우기 */
 const checkRowComplete = () => {
+  scoreData.lineCleared = 0;
   Array(24)
     .fill(0)
     .forEach((x, row) => {
@@ -717,6 +725,7 @@ const checkRowComplete = () => {
         })
         .reduce((a, b) => a + b);
       if (rowFilled === 10) {
+        scoreData.lineCleared += 1;
         if (row >= 4) {
           Array(10)
             .fill(0)
@@ -743,6 +752,15 @@ const checkRowComplete = () => {
           });
       }
     });
+  if (scoreData.lineCleared > 0) {
+    scoreData.combo += 1;
+    if (scoreData.lineCleared === 4 || scoreData.isT_Spin)
+      scoreData.isBTB = true;
+    else scoreData.isBTB = false;
+  } else scoreData.combo = 0;
+  lineClearScore();
+  scoreData.tempScore = gameData.score;
+  scoreData.isT_Spin = false;
 };
 
 const minoSpawn = () => {
@@ -911,6 +929,8 @@ const checkHoldConflict = (mino) => {
 
 const changeHold = () => {
   if (gameData.holdDone) return;
+  gameData.score = scoreData.tempScore;
+  rendScore();
   if (!gameData.holdMino) {
     if (checkHoldConflict(minoBag[0])) return;
     gameData.holdDone = true;
@@ -929,10 +949,7 @@ const changeHold = () => {
 
 const keyPressDown = () => {
   if (checkMoveConflict(`down`)) return true;
-  if (keyDatas.downPressed) {
-    gameData.score += 300; //　임시 값
-    rendScore();
-  }
+  if (keyDatas.downPressed) softDropScore();
   minoRemovePrev();
   gameData.minoPos.spinPos = {
     row: gameData.minoPos.spinPos.row + 1,
@@ -963,13 +980,14 @@ const keyPressRight = () => {
   rendMino();
 };
 
-const minoDrop = () => {
+const minoDrop = (height) => {
   const isBottom = keyPressDown();
-  if (isBottom) return;
-  else minoDrop();
+  if (isBottom) return height;
+  else return minoDrop(height + 1);
 };
 const keyPressSpacebar = () => {
-  minoDrop();
+  const mino_height = minoDrop(0);
+  hardDropScore(mino_height);
   fixCurMino();
   takeoutNext();
 };
@@ -1953,18 +1971,6 @@ export const toggleRestartBtn = (toggle = `on`) => {
   }
 };
 
-export const rendScore = () => {
-  const scoreStr = [...String(gameData.score)];
-  const score = scoreStr
-    .map((x, i) => {
-      if ((scoreStr.length - i) % 3 === 1 && i + 1 !== scoreStr.length)
-        return x + `,`;
-      else return x;
-    })
-    .reduce((x, y) => x + y);
-  curScore.innerHTML = score;
-};
-
 document.addEventListener(`keydown`, (e) => {
   // console.log(e.keyCode);
   if (!gameData.isPlaying && e.key !== `F12`) {
@@ -2100,5 +2106,4 @@ console.log(
   gameGridData,
   // takeoutNext,
   // toggleRestartBtn,
-  // rendScore,
 );

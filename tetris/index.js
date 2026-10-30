@@ -22,11 +22,18 @@ import {
   gameGridData,
   takeoutNext,
   toggleRestartBtn,
-  rendScore,
 } from "./game.js";
+import {
+  scoreData,
+  rendScore,
+  softDropScore,
+  hardDropScore,
+  lineClearScore,
+} from "./score_system.js";
 import "./query.js";
 import "./mino_datas.js";
 import "./game.js";
+import "./score_system.js";
 
 const gamePreview = () => {
   refillBag();
