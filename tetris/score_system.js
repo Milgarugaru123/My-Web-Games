@@ -22,6 +22,8 @@ import {
   gameGridData,
   takeoutNext,
   toggleRestartBtn,
+  bgmStart,
+  bgmCrossFade,
 } from "./game.js";
 
 /* 점수 시스템:
@@ -46,6 +48,7 @@ import {
     -> 바닥에 닿으면 bottomDelay가 0일 경우 0.1 적립
     -> bottomDelay가 0이 아닌 경우 드롭 점수 없음
     -> 빈칸에 드롭 시 (bottomDelay < 1.5 && bottomDelay % 0.5 = 0.1)인 경우 bottomDelay = 0
+- All Clear 시 기본 점수 5배 반영
 */
 
 export const scoreData = {
@@ -54,6 +57,7 @@ export const scoreData = {
   isT_Spin: false,
   isBTB: false,
   combo: 0,
+  maxedScoreLen: undefined,
 };
 
 export const rendScore = () => {
@@ -66,6 +70,30 @@ export const rendScore = () => {
     })
     .reduce((x, y) => x + y);
   curScore.innerHTML = score;
+  // if (
+  //   gameData.curBgm !== 1 &&
+  //   gameData.score >= 10000 &&
+  //   gameData.score < 100000
+  // )
+  //   bgmCrossFade(1, 3000);
+  // if (
+  //   gameData.curBgm !== 2 &&
+  //   gameData.score >= 100000 &&
+  //   gameData.score < 500000
+  // )
+  //   bgmCrossFade(2, 3000);
+  // if (
+  //   gameData.curBgm !== 3 &&
+  //   gameData.score >= 500000 &&
+  //   gameData.score < 1000000
+  // )
+  //   bgmCrossFade(3, 3000);
+  // if (
+  //   gameData.curBgm !== 4 &&
+  //   gameData.score >= 1000000 &&
+  //   gameData.score < 2000000
+  // )
+  //   gameData.curBgm = 4; // 브금 추가되면...
 };
 
 const makeAlpha = (mul) => {
@@ -92,17 +120,19 @@ export const hardDropScore = (height) => {
   rendScore();
 };
 
-export const lineClearScore = () => {
+export const lineClearScore = (isAllClear) => {
   const baseScore = 100;
   const alpha = makeAlpha(baseScore);
   gameData.score += Math.floor(
-    (baseScore + alpha) *
+    (baseScore * (isAllClear ? 5 : 1) + alpha) *
       scoreData.lineCleared *
       (scoreData.isT_Spin ? (scoreData.isT_Spin === `mini` ? 1.3 : 2) : 1) *
       (scoreData.isBTB ? 1.5 : 1) *
       (1 + 0.1 * ((scoreData.combo > 15 ? 15 : scoreData.combo) - 1)),
   );
-  console.log(scoreData);
+  console.log(
+    `${scoreData.combo} 콤보!\n${scoreData.isBTB ? `Back to Back!\n` : ``}${isAllClear ? `올 클리어!` : ``}`,
+  );
   rendScore();
 };
 

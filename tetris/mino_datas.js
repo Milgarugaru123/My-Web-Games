@@ -143,6 +143,11 @@ export const refillBag = () => {
   if (minoBag.length > 7) return;
   minoBag.push(...makeMinoBag());
 };
+// 테스트 용 I 미노 가방
+// export const refillBag = () => {
+//   if (minoBag.length > 7) return;
+//   minoBag.push(...[`I`, `I`, `I`, `I`, `I`, `I`, `I`]);
+// };
 
 console.log(
   minoDatas,

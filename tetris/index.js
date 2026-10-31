@@ -22,6 +22,8 @@ import {
   gameGridData,
   takeoutNext,
   toggleRestartBtn,
+  bgmStart,
+  bgmCrossFade,
 } from "./game.js";
 import {
   scoreData,
@@ -44,9 +46,8 @@ const gamePreview = () => {
 };
 
 const gameStart = () => {
-  gameData.gameSpeed = gameData.initGameSpeed;
+  scoreData.maxedScoreLen = undefined;
   takeoutNext();
-  console.log(gameData);
 };
 
 const countDown = (count) => {
@@ -72,6 +73,7 @@ const countDown = (count) => {
 
 const gameReady = () => {
   gamePreview();
+  bgmStart(3000);
   countDown(3);
 };
 
