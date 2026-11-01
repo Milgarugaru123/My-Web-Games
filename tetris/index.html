@@ -259,19 +259,61 @@
 
           <!-- 점수판 -->
           <div class="score_board">
+            <!-- 현재 점수 -->
             <div class="scores">
               <div class="score">
                 Score
                 <div>・</div>
                 <span></span>
               </div>
+
+              <!-- 하이스코어 -->
               <div class="highscore">
                 to Best!
                 <div>・</div>
                 <span></span>
               </div>
             </div>
-            <div class="spin_review info_hidden"></div>
+
+            <!-- 스핀 및 판정 리뷰 (T Spin, Tetris, Back-to-back) -->
+            <div class="spin_review info_hidden">
+              <!-- Combo -->
+              <div class="combo review_show info_hidden">
+                <div>
+                  <span class="combo_val">0</span>
+                  <div>Combo!</div>
+                </div>
+              </div>
+
+              <!-- T Spin -->
+              <div class="t_spin review_show info_hidden">
+                <div>
+                  <div>SPIN</div>
+                  <span class="t_spin_mini">mini</span>
+                </div>
+              </div>
+
+              <!-- Tetris -->
+              <div class="tetris review_show info_hidden">
+                <div>
+                  <span>TETR</span>
+                  <div class="tetris_I"></div>
+                  <span>S</span>
+                </div>
+              </div>
+
+              <!-- Back to Back -->
+              <div class="back_to_back review_show info_hidden">
+                <div>
+                  <span>Back</span>
+                  <span>to</span>
+                  <span>Back!</span>
+                  <div>Z</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 게임 다시 시작 버튼 -->
             <button class="restart info_hidden">Click to Restart!</button>
           </div>
         </article>

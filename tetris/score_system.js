@@ -7,6 +7,12 @@ import {
   highScore,
   spinReview,
   restartBtn,
+  comboReview,
+  comboValReview,
+  t_SpinReview,
+  t_SpinMiniReview,
+  tetrisReview,
+  backToBackReview,
 } from "./query.js";
 import {
   minoDatas,
@@ -23,7 +29,6 @@ import {
   takeoutNext,
   toggleRestartBtn,
   bgmStart,
-  bgmCrossFade,
 } from "./game.js";
 
 /* 점수 시스템:
@@ -55,7 +60,7 @@ export const scoreData = {
   prevScore: 0,
   lineCleared: 0,
   isT_Spin: false,
-  isBTB: false,
+  isBTB: 0,
   combo: 0,
   maxedScoreLen: undefined,
 };
@@ -70,30 +75,6 @@ export const rendScore = () => {
     })
     .reduce((x, y) => x + y);
   curScore.innerHTML = score;
-  // if (
-  //   gameData.curBgm !== 1 &&
-  //   gameData.score >= 10000 &&
-  //   gameData.score < 100000
-  // )
-  //   bgmCrossFade(1, 3000);
-  // if (
-  //   gameData.curBgm !== 2 &&
-  //   gameData.score >= 100000 &&
-  //   gameData.score < 500000
-  // )
-  //   bgmCrossFade(2, 3000);
-  // if (
-  //   gameData.curBgm !== 3 &&
-  //   gameData.score >= 500000 &&
-  //   gameData.score < 1000000
-  // )
-  //   bgmCrossFade(3, 3000);
-  // if (
-  //   gameData.curBgm !== 4 &&
-  //   gameData.score >= 1000000 &&
-  //   gameData.score < 2000000
-  // )
-  //   gameData.curBgm = 4; // 브금 추가되면...
 };
 
 const makeAlpha = (mul) => {
@@ -127,11 +108,8 @@ export const lineClearScore = (isAllClear) => {
     (baseScore * (isAllClear ? 5 : 1) + alpha) *
       scoreData.lineCleared *
       (scoreData.isT_Spin ? (scoreData.isT_Spin === `mini` ? 1.3 : 2) : 1) *
-      (scoreData.isBTB ? 1.5 : 1) *
+      (scoreData.isBTB > 1 ? 1.5 : 1) *
       (1 + 0.1 * ((scoreData.combo > 15 ? 15 : scoreData.combo) - 1)),
-  );
-  console.log(
-    `${scoreData.combo} 콤보!\n${scoreData.isBTB ? `Back to Back!\n` : ``}${isAllClear ? `올 클리어!` : ``}`,
   );
   rendScore();
 };

@@ -365,10 +365,135 @@ main {
   min-height: 12lvh;
   border-radius: 1lvh;
   display: flex;
-  justify-content: center;
+  flex-flow: column wrap;
+  justify-content: space-evenly;
   align-items: center;
+  padding: 4px;
+  gap: 4px 12px;
   pointer-events: none;
   background-color: rgba(122, 122, 122, 0.2);
+}
+
+.reivew_show {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.spin_review > div > div {
+  font-weight: bolder;
+  position: relative;
+}
+
+.combo > div {
+  color: rgb(160, 95, 16);
+  font-size: 16px;
+  letter-spacing: 0;
+  text-shadow:
+    0 0 8px rgba(255, 153, 21, 0.5),
+    0 0 8px rgb(255, 153, 21),
+    0 0 16px rgb(255, 153, 21);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.combo_val {
+  color: rgb(211, 77, 0);
+  font-size: 20px;
+}
+
+.t_spin > div > div {
+  color: rgb(68, 8, 95);
+  font-size: 20px;
+  width: 120%;
+  aspect-ratio: 3/2;
+  background-color: rgb(161, 34, 219);
+  clip-path: polygon(
+    0% 0%,
+    100% 0%,
+    100% 50%,
+    66% 50%,
+    66% 100%,
+    33% 100%,
+    33% 50%,
+    0% 50%
+  );
+  padding: 2%;
+  text-align: center;
+  position: relative;
+  left: -10%;
+}
+
+.t_spin_mini {
+  color: rgb(53, 6, 75);
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 4px;
+  background-color: rgba(204, 163, 223, 0.7);
+  padding: 2px;
+  position: absolute;
+  right: -5%;
+  bottom: calc(50% - 22px);
+}
+
+.tetris > div {
+  color: rgb(15, 93, 117);
+  font-size: 20px;
+  background-color: rgba(69, 202, 243, 0.4);
+  padding: 2%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+}
+
+.tetris_I {
+  width: 10px;
+  height: 28px;
+  border: 1px solid rgb(15, 93, 117);
+  background-color: rgb(69, 202, 243);
+}
+
+.back_to_back > div {
+  color: rgb(15, 93, 117);
+  font-size: 20px;
+  line-height: 16px;
+  text-shadow:
+    0 0 10px rgba(161, 34, 219, 0.5),
+    0 0 20px rgb(161, 34, 219);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.back_to_back > div > span {
+  z-index: 1;
+}
+
+.back_to_back > div > span:nth-child(1) {
+  position: relative;
+  left: -12%;
+}
+
+.back_to_back > div > span:nth-child(3) {
+  position: relative;
+  left: 12%;
+}
+
+.back_to_back > div > div {
+  color: rgba(161, 34, 219, 0.6);
+  font-size: 52px;
+  position: absolute;
+  margin: auto;
+}
+
+.review_hide {
+  transition: all 1.5s;
+  opacity: 0;
 }
 
 .restart {

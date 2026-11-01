@@ -7,6 +7,12 @@ import {
   highScore,
   spinReview,
   restartBtn,
+  comboReview,
+  comboValReview,
+  t_SpinReview,
+  t_SpinMiniReview,
+  tetrisReview,
+  backToBackReview,
 } from "./query.js";
 import {
   minoDatas,
@@ -23,7 +29,6 @@ import {
   takeoutNext,
   toggleRestartBtn,
   bgmStart,
-  bgmCrossFade,
 } from "./game.js";
 import {
   scoreData,
