@@ -24,6 +24,7 @@ import {
 import {
   rendNext,
   rendHold,
+  intervalId,
   gameData,
   gameGridData,
   takeoutNext,
@@ -88,6 +89,7 @@ const makeAlpha = (mul) => {
   );
 };
 export const softDropScore = () => {
+  if (gameData.minoPos.spinPos.row <= gameData.maxRow) return;
   const baseScore = 10;
   const alpha = makeAlpha(baseScore);
   gameData.score += baseScore + (alpha < 0 ? 0 : alpha);
@@ -101,9 +103,26 @@ export const hardDropScore = (height) => {
   rendScore();
 };
 
+const reviewRotate = (range) =>
+  `rotate(${Math.floor(Math.random() * range * 2) - range}deg)`;
+
 export const lineClearScore = (isAllClear) => {
+  if (intervalId.allClearReview) {
+    clearTimeout(intervalId.allClearReview);
+    allClearReview.classList.remove(`review_hide`);
+    allClearReview.classList.add(`info_hidden`);
+  }
   const baseScore = 100;
   const alpha = makeAlpha(baseScore);
+  console.log(
+    Math.floor(
+      (baseScore * (isAllClear ? 5 : 1) + alpha) *
+        scoreData.lineCleared *
+        (scoreData.isT_Spin ? (scoreData.isT_Spin === `mini` ? 1.3 : 2) : 1) *
+        (scoreData.isBTB > 1 ? 1.5 : 1) *
+        (1 + 0.1 * ((scoreData.combo > 15 ? 15 : scoreData.combo) - 1)),
+    ),
+  );
   gameData.score += Math.floor(
     (baseScore * (isAllClear ? 5 : 1) + alpha) *
       scoreData.lineCleared *
@@ -111,8 +130,27 @@ export const lineClearScore = (isAllClear) => {
       (scoreData.isBTB > 1 ? 1.5 : 1) *
       (1 + 0.1 * ((scoreData.combo > 15 ? 15 : scoreData.combo) - 1)),
   );
+  if (isAllClear) {
+    allClearReview.style.transform = reviewRotate(7.5);
+    allClearReview.classList.remove(`info_hidden`);
+    intervalId.allClearReview = setTimeout(() => {
+      allClearReview.classList.add(`review_hide`);
+      intervalId.allClearReview = setTimeout(() => {
+        allClearReview.classList.remove(`review_hide`);
+        allClearReview.classList.add(`info_hidden`);
+        intervalId.allClearReview = undefined;
+      }, 1000);
+    }, 2000);
+  }
   rendScore();
 };
+
+const allClearReview = document.createElement(`div`);
+allClearReview.classList.add(`all_clear`);
+allClearReview.classList.add(`review_show`);
+allClearReview.classList.add(`info_hidden`);
+allClearReview.innerHTML = `All Clear!`;
+tetrisScreen.appendChild(allClearReview);
 
 console.log(
   scoreData,

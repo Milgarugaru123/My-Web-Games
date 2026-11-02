@@ -24,6 +24,7 @@ import {
 import {
   rendNext,
   rendHold,
+  intervalId,
   gameData,
   gameGridData,
   takeoutNext,

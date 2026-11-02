@@ -41,7 +41,7 @@ const keyDatas = {
   hold: `Shift`,
   holdPressed: false,
 };
-const intervalId = {
+export const intervalId = {
   leftKey: undefined,
   rightKey: undefined,
   downKey: undefined,
@@ -49,6 +49,7 @@ const intervalId = {
   t_SpinReview: undefined,
   tetrisReview: undefined,
   backToBackReview: undefined,
+  allClearReview: undefined,
 };
 export const gameData = {
   isPlaying: false,
@@ -113,7 +114,6 @@ const minoFall = () => {
         gameData.maxRow = gameData.minoPos.spinPos.row;
         gameData.bottomDelay = 0;
       }
-      console.log(gameData.maxRow, gameData.bottomDelay);
       if (gameData.bottomDelay < Math.ceil(gameData.maxBottomDelay / 4))
         minoFall();
       else if (
@@ -137,7 +137,6 @@ const minoFall = () => {
         gameData.maxRow = gameData.minoPos.spinPos.row;
         gameData.bottomDelay = 0;
       }
-      console.log(gameData.maxRow, gameData.bottomDelay);
       if (gameData.bottomDelay < Math.ceil(gameData.maxBottomDelay / 4))
         minoFall();
       else if (
@@ -771,17 +770,32 @@ const checkMoveConflict = (move = `stop`) => {
   }
 };
 
+const reviewRotate = (range) =>
+  `rotate(${Math.floor(Math.random() * range * 2) - range}deg)`;
+
 const rendReview = () => {
   comboReview.classList.add(`info_hidden`);
   if (!scoreData.isT_Spin) {
     clearTimeout(intervalId.t_SpinReview);
     intervalId.t_SpinReview = undefined;
+    t_SpinReview.classList.remove(`review_hide`);
     t_SpinReview.classList.add(`info_hidden`);
     t_SpinMiniReview.classList.add(`info_hidden`);
   }
-  if (scoreData.lineCleared === 4) tetrisReview.classList.add(`info_hidden`);
-  backToBackReview.classList.add(`info_hidden`);
+  if (scoreData.lineCleared > 0) {
+    if (scoreData.lineCleared === 4) {
+      clearTimeout(intervalId.tetrisReview);
+      tetrisReview.classList.remove(`review_hide`);
+      tetrisReview.classList.add(`info_hidden`);
+    }
+    if (scoreData.isBTB > 1) {
+      clearTimeout(intervalId.backToBackReview);
+      backToBackReview.classList.remove(`review_hide`);
+      backToBackReview.classList.add(`info_hidden`);
+    }
+  }
   if (scoreData.isT_Spin) {
+    t_SpinReview.style.transform = reviewRotate(5);
     t_SpinReview.classList.remove(`info_hidden`);
     if (scoreData.isT_Spin == `mini`)
       t_SpinMiniReview.classList.remove(`info_hidden`);
@@ -794,9 +808,12 @@ const rendReview = () => {
     }, 500);
   }
   if (scoreData.lineCleared > 0) {
-    comboValReview.innerHTML = scoreData.combo > 15 ? 15 : scoreData.combo;
+    comboValReview.innerHTML =
+      scoreData.combo >= 15 ? `15 MAX` : scoreData.combo;
+    comboReview.style.transform = reviewRotate(5);
     comboReview.classList.remove(`info_hidden`);
     if (scoreData.lineCleared === 4) {
+      tetrisReview.style.transform = reviewRotate(5);
       tetrisReview.classList.remove(`info_hidden`);
       setTimeout(() => {
         tetrisReview.classList.add(`review_hide`);
@@ -807,8 +824,8 @@ const rendReview = () => {
       }, 500);
     }
     if (scoreData.isBTB > 1) {
+      backToBackReview.style.transform = reviewRotate(5);
       backToBackReview.classList.remove(`info_hidden`);
-
       setTimeout(() => {
         backToBackReview.classList.add(`review_hide`);
         setTimeout(() => {
@@ -2325,6 +2342,7 @@ const bgmCrossFade = (fadeTime) => {
 console.log(
   // rendNext,
   // rendHold,
+  intervalId,
   gameData,
   gameGridData,
   // takeoutNext,
