@@ -55,37 +55,37 @@
 }
 
 .i_mino {
-  border: 2px solid rgb(34, 123, 150);
+  border: 0.25lvh solid rgb(34, 123, 150);
   background-color: rgb(69, 202, 243);
 }
 
 .o_mino {
-  border: 2px solid rgb(207, 205, 39);
+  border: 0.25lvh solid rgb(207, 205, 39);
   background-color: rgb(255, 252, 52);
 }
 
 .s_mino {
-  border: 2px solid rgb(64, 128, 28);
+  border: 0.25lvh solid rgb(64, 128, 28);
   background-color: rgb(122, 228, 61);
 }
 
 .z_mino {
-  border: 2px solid rgb(156, 23, 41);
+  border: 0.25lvh solid rgb(156, 23, 41);
   background-color: rgb(216, 63, 83);
 }
 
 .l_mino {
-  border: 2px solid rgb(160, 95, 16);
+  border: 0.25lvh solid rgb(160, 95, 16);
   background-color: rgb(255, 153, 21);
 }
 
 .j_mino {
-  border: 2px solid rgb(30, 60, 141);
+  border: 0.25lvh solid rgb(30, 60, 141);
   background-color: rgb(22, 84, 255);
 }
 
 .t_mino {
-  border: 2px solid rgb(97, 26, 129);
+  border: 0.25lvh solid rgb(97, 26, 129);
   background-color: rgb(161, 34, 219);
 }
 
@@ -101,28 +101,24 @@ main {
 
 .game_ground {
   width: 100%;
-  max-width: 1280px;
   height: 100%;
   /* border: 1px solid black; */
   display: flex;
   justify-content: start;
   align-items: center;
-  gap: 1lvw;
+  gap: 2.5lvh;
   margin: 0 auto;
   /* pointer-events: none; */
 }
 
 .blank {
-  width: 30%;
+  width: calc(50% - 30lvh);
   min-width: 0px;
-  max-width: 400px;
   /* border: 1px solid black; */
 }
 
 .game {
-  width: 100%;
-  min-width: 400px;
-  max-width: 500px;
+  width: 42lvh;
   height: 100%;
   /* border: 1px solid black; */
   display: flex;
@@ -134,11 +130,11 @@ main {
 
 .hold_mino {
   color: white;
-  font-size: 16px;
+  font-size: 2lvh;
   height: calc((90% / 6) * 0.8);
   aspect-ratio: 4 / 3;
-  border: 5px solid white;
-  border-radius: 20px;
+  border: 0.6lvh solid white;
+  border-radius: 2.5lvh;
   letter-spacing: 0.2em;
   background-color: black;
   display: flex;
@@ -147,15 +143,15 @@ main {
   align-items: center;
   position: absolute;
   top: calc((90% / 6) * 0.1);
-  padding: 5px;
-  gap: 5px;
+  padding: 0.8lvh;
+  gap: 0.5lvh;
   z-index: 3;
 }
 
 .mino_case {
   width: 100%;
   height: 100%;
-  font-size: 12px;
+  font-size: 1.5lvh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -165,7 +161,7 @@ main {
   height: 90%;
   aspect-ratio: 10 / 24;
   /* border: 1px solid black; */
-  border-radius: 30px 30px 0 0;
+  border-radius: 4lvh 4lvh 0 0;
   background-color: rgba(0, 0, 0, 0.3);
   position: relative;
 }
@@ -173,8 +169,8 @@ main {
 .main_board::before {
   content: "";
   width: 100%;
-  height: calc(100% / 6 + 10px);
-  border-radius: 30px 30px 0 0;
+  height: calc(100% / 6 + 0.9lvh);
+  border-radius: 4lvh 4lvh 0 0;
   background: linear-gradient(rgb(3, 202, 186), transparent);
   display: block;
   position: relative;
@@ -184,34 +180,34 @@ main {
 .main_board::after {
   content: "";
   width: 100%;
-  height: 30px;
+  height: 4lvh;
   background-color: black;
   position: absolute;
-  bottom: -30px;
+  bottom: -4lvh;
 }
 
 .board_wing {
-  width: 7%;
-  min-width: 30px;
-  height: calc(90% - 90% / 6 + 30px);
+  width: 4lvh;
+  min-width: 4lvh;
+  height: calc(90% - 90% / 6 + 4lvh);
   background-color: black;
   position: relative;
   top: calc(90% / 6);
 }
 
 .left_wing {
-  border-radius: 30px 0 0 30px;
+  border-radius: 4lvh 0 0 4lvh;
 }
 
 .right_wing {
-  border-radius: 0 30px 30px 0;
+  border-radius: 0 4lvh 4lvh 0;
 }
 
 .tetris_board {
   width: 100%;
   height: calc(100% - 100% / 6);
   position: relative;
-  top: -10px;
+  top: -1lvh;
   display: grid;
   grid-template-columns: repeat(10, 1fr);
 }
@@ -230,11 +226,12 @@ main {
 }
 
 .infos {
-  width: 30%;
-  min-width: 200px;
-  max-width: 400px;
+  width: calc(40% - 15lvh);
+  min-width: 34lvh;
+  max-width: 50lvh;
   height: 100%;
-  /* border: 1px solid black; */
+  border: 1px solid black;
+  /* padding-left: 5lvh; */
   /* pointer-events: none; */
 }
 
@@ -247,6 +244,7 @@ main {
   flex-direction: column;
   justify-content: start;
   gap: 3lvh;
+  margin-left: 5lvh;
   pointer-events: none;
 }
 
@@ -257,19 +255,19 @@ main {
 
 .next_mino {
   color: white;
-  font-size: 16px;
+  font-size: 2lvh;
   height: 100%;
   aspect-ratio: 4 / 3;
-  border: 5px solid white;
-  border-radius: 20px;
+  border: 0.6lvh solid white;
+  border-radius: 2.5lvh;
   letter-spacing: 0.2em;
   background-color: black;
   display: flex;
   flex-direction: column;
   justify-content: start;
   align-items: center;
-  padding: 5px;
-  gap: 5px;
+  padding: 0.6lvh;
+  gap: 0.6lvh;
 }
 
 .rightshift_container {
@@ -285,15 +283,15 @@ main {
   color: white;
   width: 13lvh;
   height: fit-content;
-  border: 5px solid white;
-  border-radius: 20px;
+  border: 0.6lvh solid white;
+  border-radius: 2.5lvh;
   background-color: black;
-  padding: 5px;
+  padding: 0.6lvh;
   display: flex;
   flex-direction: column;
   justify-content: start;
   align-items: center;
-  gap: 5px;
+  gap: 0.6lvh;
 }
 
 .further_next_mino {
@@ -314,20 +312,22 @@ main {
 
 .score_board {
   color: black;
-  font-size: 16px;
+  font-size: 2lvh;
   width: 80%;
-  min-width: 200px;
+  min-width: 30lvh;
+  max-width: 36lvh;
   height: fit-content;
-  max-height: 38lvh;
-  border: 5px solid rgb(3, 202, 186);
-  border-radius: 20px;
+  max-height: 30lvh;
+  border: 0.5lvh solid rgb(3, 202, 186);
+  border-radius: 2.5lvh;
   display: flex;
   flex-direction: column;
   align-items: start;
   letter-spacing: 0.2em;
   background-color: rgba(253, 250, 255, 0.9);
-  padding: 10px;
-  gap: 24px;
+  padding: 1.5lvh;
+  gap: 2.5lvh;
+  margin-left: 2.5lvh;
   /* pointer-events: none; */
 }
 
@@ -336,7 +336,7 @@ main {
   font-weight: 500;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 2lvh;
   pointer-events: none;
 }
 
@@ -346,12 +346,12 @@ main {
   align-items: center;
   flex-wrap: wrap;
   white-space: nowrap;
-  row-gap: 4px;
+  row-gap: 0.3lvh;
 }
 
 .scores > div > div {
   color: rgb(168, 28, 211);
-  font-size: 24px;
+  font-size: 3lvh;
   font-weight: 900;
 }
 
@@ -504,13 +504,13 @@ main {
 
 .restart {
   color: white;
-  font-size: 16px;
+  font-size: 2lvh;
   font-weight: bold;
-  border: 3px solid rgb(3, 202, 186);
+  border: 0.4lvh solid rgb(3, 202, 186);
   background-color: rgba(72, 13, 87, 0.8);
-  border-radius: 16px;
-  padding: 8px 16px;
-  margin: 0 auto 8px;
+  border-radius: 2lvh;
+  padding: 1lvh 2lvh;
+  margin: 0 auto 1lvh;
   cursor: pointer;
 }
 
