@@ -1,32 +1,32 @@
 import {
-  holdCase,
-  tetrisScreen,
-  nextCase,
-  furtherNextCase,
+  // holdCase,
+  // tetrisScreen,
+  // nextCase,
+  // furtherNextCase,
   curScore,
   highScore,
-  spinReview,
+  // spinReview,
   restartBtn,
-  comboReview,
-  comboValReview,
-  t_SpinReview,
-  t_SpinMiniReview,
-  tetrisReview,
-  backToBackReview,
+  // comboReview,
+  // comboValReview,
+  // t_SpinReview,
+  // t_SpinMiniReview,
+  // tetrisReview,
+  // backToBackReview,
 } from "./query.js";
 import {
-  minoDatas,
-  makeMino,
+  // minoDatas,
+  // makeMino,
   gridDatas,
-  minoBag,
+  // minoBag,
   refillBag,
 } from "./mino_datas.js";
 import {
   rendNext,
   rendHold,
-  intervalId,
+  // intervalId,
   gameData,
-  gameGridData,
+  // gameGridData,
   takeoutNext,
   toggleRestartBtn,
   bgmStart,
@@ -34,9 +34,10 @@ import {
 import {
   scoreData,
   rendScore,
-  softDropScore,
-  hardDropScore,
-  lineClearScore,
+  rendHighscore,
+  // softDropScore,
+  // hardDropScore,
+  // lineClearScore,
 } from "./score_system.js";
 import "./query.js";
 import "./mino_datas.js";
@@ -89,8 +90,10 @@ restartBtn.addEventListener(`click`, (e) => {
 
 /* init */
 
+gameData.highscore = +(localStorage.getItem(`highscore`) ?? 0);
 curScore.innerHTML = `－－`;
-highScore.innerHTML = `－－`;
+if (gameData.highscore > 0) rendHighscore(gameData.highscore);
+else highScore.innerHTML = `－－`;
 
 const startBtn = document.createElement(`button`);
 startBtn.innerHTML = `Tetris To Start!`;

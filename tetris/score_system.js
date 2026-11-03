@@ -1,35 +1,28 @@
 import {
-  holdCase,
+  // holdCase,
   tetrisScreen,
-  nextCase,
-  furtherNextCase,
+  // nextCase,
+  // furtherNextCase,
   curScore,
   highScore,
-  spinReview,
-  restartBtn,
-  comboReview,
-  comboValReview,
-  t_SpinReview,
-  t_SpinMiniReview,
-  tetrisReview,
-  backToBackReview,
+  // spinReview,
+  // restartBtn,
+  // comboReview,
+  // comboValReview,
+  // t_SpinReview,
+  // t_SpinMiniReview,
+  // tetrisReview,
+  // backToBackReview,
 } from "./query.js";
 import {
-  minoDatas,
-  makeMino,
-  gridDatas,
-  minoBag,
-  refillBag,
-} from "./mino_datas.js";
-import {
-  rendNext,
-  rendHold,
+  // rendNext,
+  // rendHold,
   intervalId,
   gameData,
-  gameGridData,
-  takeoutNext,
-  toggleRestartBtn,
-  bgmStart,
+  // gameGridData,
+  // takeoutNext,
+  // toggleRestartBtn,
+  // bgmStart,
 } from "./game.js";
 
 /* 점수 시스템:
@@ -58,6 +51,8 @@ import {
 */
 
 export const scoreData = {
+  baseScore: 10, // init: 10점
+  balance: 5, // 난이도 및 점수 배수
   prevScore: 0,
   lineCleared: 0,
   isT_Spin: false,
@@ -66,16 +61,26 @@ export const scoreData = {
   maxedScoreLen: undefined,
 };
 
-export const rendScore = () => {
-  const scoreStr = [...String(gameData.score)];
-  const score = scoreStr
+const rendScoreForm = (scoreStr) => {
+  return scoreStr
     .map((x, i) => {
       if ((scoreStr.length - i) % 3 === 1 && i + 1 !== scoreStr.length)
         return x + `,`;
       else return x;
     })
     .reduce((x, y) => x + y);
+};
+
+export const rendScore = () => {
+  const scoreStr = [...String(gameData.score)];
+  const score = rendScoreForm(scoreStr);
   curScore.innerHTML = score;
+};
+
+export const rendHighscore = () => {
+  const scoreStr = [...String(gameData.highscore)];
+  const score = rendScoreForm(scoreStr);
+  highScore.innerHTML = score;
 };
 
 const makeAlpha = (mul) => {
@@ -90,16 +95,20 @@ const makeAlpha = (mul) => {
 };
 export const softDropScore = () => {
   if (gameData.minoPos.spinPos.row <= gameData.maxRow) return;
-  const baseScore = 10;
-  const alpha = makeAlpha(baseScore);
-  gameData.score += baseScore + (alpha < 0 ? 0 : alpha);
+  const alpha = makeAlpha(scoreData.baseScore);
+  gameData.score +=
+    (scoreData.baseScore + (alpha < 0 ? 0 : alpha)) *
+    Math.ceil(scoreData.balance / 2);
   rendScore();
 };
 export const hardDropScore = (height) => {
-  const baseScore = 10;
-  const alpha = makeAlpha(baseScore);
+  const alpha = makeAlpha(scoreData.baseScore);
   const h = Math.ceil(Math.sqrt((height * 3) / 11));
-  gameData.score += (baseScore + (alpha < 0 ? 0 : alpha)) * height * h;
+  gameData.score +=
+    (scoreData.baseScore + (alpha < 0 ? 0 : alpha)) *
+    height *
+    h *
+    Math.ceil(scoreData.balance / 2);
   rendScore();
 };
 
@@ -112,11 +121,12 @@ export const lineClearScore = (isAllClear) => {
     allClearReview.classList.remove(`review_hide`);
     allClearReview.classList.add(`info_hidden`);
   }
-  const baseScore = 100;
-  const alpha = makeAlpha(baseScore);
+  const baseLineClearScore =
+    scoreData.baseScore * 10 * Math.ceil(scoreData.balance / 2);
+  const alpha = makeAlpha(baseLineClearScore);
   console.log(
     Math.floor(
-      (baseScore * (isAllClear ? 5 : 1) + alpha) *
+      (baseLineClearScore * (isAllClear ? 5 : 1) + alpha) *
         scoreData.lineCleared *
         (scoreData.isT_Spin ? (scoreData.isT_Spin === `mini` ? 1.3 : 2) : 1) *
         (scoreData.isBTB > 1 ? 1.5 : 1) *
@@ -124,7 +134,7 @@ export const lineClearScore = (isAllClear) => {
     ),
   );
   gameData.score += Math.floor(
-    (baseScore * (isAllClear ? 5 : 1) + alpha) *
+    (baseLineClearScore * (isAllClear ? 5 : 1) + alpha) *
       scoreData.lineCleared *
       (scoreData.isT_Spin ? (scoreData.isT_Spin === `mini` ? 1.3 : 2) : 1) *
       (scoreData.isBTB > 1 ? 1.5 : 1) *
@@ -155,6 +165,7 @@ tetrisScreen.appendChild(allClearReview);
 console.log(
   scoreData,
   // rendScore,
+  // rendHighscore,
   // softDropScore,
   // hardDropScore,
   // lineClearScore,

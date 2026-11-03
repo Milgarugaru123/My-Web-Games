@@ -1,10 +1,10 @@
 import {
   holdCase,
-  tetrisScreen,
+  // tetrisScreen,
   nextCase,
   furtherNextCase,
-  curScore,
-  highScore,
+  // curScore,
+  // highScore,
   spinReview,
   restartBtn,
   comboReview,
@@ -24,6 +24,7 @@ import {
 import {
   scoreData,
   rendScore,
+  rendHighscore,
   softDropScore,
   hardDropScore,
   lineClearScore,
@@ -55,7 +56,7 @@ export const gameData = {
   isPlaying: false,
   highscore: 0,
   score: 0,
-  initGameSpeed: 1500,
+  initGameSpeed: 1500, // init: 1200~1500
   curBgm: undefined,
   curMino: undefined,
   minoPos: {
@@ -88,12 +89,11 @@ const minoFall = () => {
   gameData.isSideMoved = false;
   gameData.isSpinned = false;
   const scoreLen = [...(`` + Math.floor(gameData.score / 100))].length;
-  const balance = 5; // 난이도 별 속도 조절용
   const alpha =
     ((scoreLen < 2 ? 0 : (scoreLen - 1) ** 2) * 10 +
       Math.floor(gameData.score / 10 ** (scoreLen < 2 ? 2 : scoreLen + 1)) *
         (scoreLen * 2 - 1)) *
-    balance;
+    scoreData.balance;
   if (
     gameData.initGameSpeed - alpha < gameData.minoDownInterval &&
     !scoreData.maxedScoreLen
@@ -103,7 +103,7 @@ const minoFall = () => {
     gameData.initGameSpeed - alpha < gameData.minoDownInterval
       ? Math.max(
           gameData.minoDownInterval -
-            (scoreLen - scoreData.maxedScoreLen) * balance,
+            (scoreLen - scoreData.maxedScoreLen) * scoreData.balance,
           10,
         )
       : gameData.initGameSpeed - alpha;
@@ -695,6 +695,9 @@ const setMinoRendGrids = () => {
 
 const gameOver = () => {
   gameData.isPlaying = false;
+  if (gameData.score > gameData.highscore) gameData.highscore = gameData.score;
+  rendHighscore(gameData.highscore);
+  localStorage.setItem(`highscore`, JSON.stringify(gameData.highscore));
   window.alert(`Game Over!`);
   toggleRestartBtn();
 };
@@ -2320,8 +2323,8 @@ const bgmCrossFade = (fadeTime) => {
       if (
         i !== bgmList.length &&
         gameData.curBgm !== i &&
-        gameData.score >= 50000 * i ** 2 &&
-        gameData.score < 50000 * (i + 1) ** 2
+        gameData.score >= scoreData.baseScore ** scoreData.balance * i ** 2 &&
+        gameData.score < scoreData.baseScore ** scoreData.balance * (i + 1) ** 2
       ) {
         gameData.curBgm = i;
         const bgmNext = new Audio(bgmList[i].src);
