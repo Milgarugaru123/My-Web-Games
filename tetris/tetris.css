@@ -314,7 +314,7 @@ main {
   color: black;
   font-size: 2lvh;
   width: 80%;
-  min-width: 30lvh;
+  min-width: 32lvh;
   max-width: 36lvh;
   height: fit-content;
   max-height: 30.8lvh;
@@ -368,9 +368,9 @@ main {
   /* border-radius: 1lvh; */
   display: flex;
   flex-flow: column wrap;
-  justify-content: space-evenly;
+  justify-content: center;
   align-items: center;
-  gap: 1.2lvh 1.6lvh;
+  gap: 0.8lvh 1.6lvh;
   pointer-events: none;
   /* background-color: rgba(122, 122, 122, 0.2); */
 }
@@ -399,11 +399,16 @@ main {
   flex-direction: column;
   align-items: center;
   gap: 0.5lvh;
+  padding-block: 0.3em;
 }
 
 .combo_val {
   color: rgb(211, 77, 0);
   font-size: 2.5lvh;
+}
+
+.t_spin > div {
+  padding-block: 0.3em;
 }
 
 .t_spin > div > div {
@@ -443,6 +448,7 @@ main {
 .tetris {
   width: auto;
   height: fit-content;
+  padding-block: 1.25lvh;
   position: relative;
 }
 
@@ -485,6 +491,7 @@ main {
   justify-content: center;
   align-items: center;
   position: relative;
+  padding-block: 0.3em;
 }
 
 .back_to_back > div > span {
