@@ -780,13 +780,19 @@ const rendReview = () => {
   comboReview.classList.add(`info_hidden`);
   if (!scoreData.isT_Spin) {
     clearTimeout(intervalId.t_SpinReview);
-    intervalId.t_SpinReview = undefined;
     t_SpinReview.classList.remove(`review_hide`);
     t_SpinReview.classList.add(`info_hidden`);
     t_SpinMiniReview.classList.add(`info_hidden`);
+    clearTimeout(intervalId.tetrisReview);
+    tetrisReview.classList.remove(`review_hide`);
+    tetrisReview.classList.add(`info_hidden`);
   }
   if (scoreData.lineCleared > 0) {
     if (scoreData.lineCleared === 4) {
+      clearTimeout(intervalId.t_SpinReview);
+      t_SpinReview.classList.remove(`review_hide`);
+      t_SpinReview.classList.add(`info_hidden`);
+      t_SpinMiniReview.classList.add(`info_hidden`);
       clearTimeout(intervalId.tetrisReview);
       tetrisReview.classList.remove(`review_hide`);
       tetrisReview.classList.add(`info_hidden`);

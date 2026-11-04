@@ -112,7 +112,7 @@ main {
 }
 
 .blank {
-  width: calc(50% - 30lvh);
+  width: calc(50% - 23.5lvh);
   min-width: 0px;
   /* border: 1px solid black; */
 }
@@ -230,7 +230,7 @@ main {
   min-width: 34lvh;
   max-width: 50lvh;
   height: 100%;
-  border: 1px solid black;
+  /* border: 1px solid black; */
   /* padding-left: 5lvh; */
   /* pointer-events: none; */
 }
@@ -317,7 +317,7 @@ main {
   min-width: 30lvh;
   max-width: 36lvh;
   height: fit-content;
-  max-height: 30lvh;
+  max-height: 30.8lvh;
   border: 0.5lvh solid rgb(3, 202, 186);
   border-radius: 2.5lvh;
   display: flex;
@@ -336,17 +336,19 @@ main {
   font-weight: 500;
   display: flex;
   flex-direction: column;
-  gap: 2lvh;
+  gap: 1.2lvh;
   pointer-events: none;
 }
 
 .scores > div {
   height: max-content;
   display: flex;
+  /* justify-content: center; */
   align-items: center;
   flex-wrap: wrap;
   white-space: nowrap;
   row-gap: 0.3lvh;
+  /* padding-right: 30%; */
 }
 
 .scores > div > div {
@@ -356,21 +358,19 @@ main {
 }
 
 .scores span {
-  height: max-content;
   font-weight: 900;
 }
 
 .spin_review {
   width: 100%;
-  height: calc(27lvh - 120px);
-  min-height: 12lvh;
+  height: 100%;
+  min-height: 14lvh;
   /* border-radius: 1lvh; */
   display: flex;
   flex-flow: column wrap;
   justify-content: space-evenly;
   align-items: center;
-  /* padding: 4px; */
-  gap: 4px 8px;
+  gap: 1.2lvh 1.6lvh;
   pointer-events: none;
   /* background-color: rgba(122, 122, 122, 0.2); */
 }
@@ -389,26 +389,26 @@ main {
 
 .combo > div {
   color: rgb(160, 95, 16);
-  font-size: 16px;
+  font-size: 2.25lvh;
   letter-spacing: 0;
   text-shadow:
-    0 0 8px rgba(255, 153, 21, 0.5),
-    0 0 8px rgb(255, 153, 21),
-    0 0 16px rgb(255, 153, 21);
+    0 0 1lvh rgba(255, 153, 21, 0.5),
+    0 0 1lvh rgb(255, 153, 21),
+    0 0 2lvh rgb(255, 153, 21);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 0.5lvh;
 }
 
 .combo_val {
   color: rgb(211, 77, 0);
-  font-size: 20px;
+  font-size: 2.5lvh;
 }
 
 .t_spin > div > div {
   color: rgb(68, 8, 95);
-  font-size: 20px;
+  font-size: 2.5lvh;
   width: 120%;
   aspect-ratio: 3/2;
   background-color: rgb(161, 34, 219);
@@ -422,7 +422,7 @@ main {
     33% 50%,
     0% 50%
   );
-  padding: 2%;
+  padding-top: 4%;
   text-align: center;
   position: relative;
   left: -10%;
@@ -430,45 +430,56 @@ main {
 
 .t_spin_mini {
   color: rgb(53, 6, 75);
-  font-size: 16px;
+  font-size: 2lvh;
   font-weight: bold;
-  border-radius: 4px;
+  border-radius: 0.5lvh;
   background-color: rgba(204, 163, 223, 0.7);
-  padding: 2px;
+  padding: 3%;
   position: absolute;
   right: -5%;
-  bottom: calc(50% - 22px);
+  bottom: calc(50% - 2.75lvh);
+}
+
+.tetris {
+  width: auto;
+  height: fit-content;
+  position: relative;
 }
 
 .tetris > div {
   color: rgb(15, 93, 117);
-  font-size: 20px;
+  font-size: 2.5lvh;
   background-color: rgba(69, 202, 243, 0.4);
-  padding: 2%;
+  padding: 0.2em 0.4em;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 2px;
+  gap: 2lvh;
 }
 
 .tetris_I {
-  width: 10px;
-  height: 28px;
-  border: 1px solid rgb(15, 93, 117);
+  width: 1.25lvh;
+  height: 5lvh;
+  border: 0.1lvh solid rgb(15, 93, 117);
   border-top: none;
   background-color: rgb(69, 202, 243);
-  background-image: linear-gradient(rgb(15, 93, 117) 1px, transparent 1px);
+  background-image: linear-gradient(
+    rgb(15, 93, 117) 0.1lvh,
+    transparent 0.1lvh
+  );
   background-size: 100% 25%;
+  position: absolute;
+  right: 3.5lvh;
 }
 
 .back_to_back > div {
   color: rgb(15, 93, 117);
-  font-size: 20px;
-  line-height: 16px;
+  font-size: 2.5lvh;
+  line-height: 2lvh;
   text-shadow:
-    0 0 10px rgba(161, 34, 219, 0.5),
-    0 0 20px rgb(161, 34, 219),
-    0 0 30px rgba(255, 255, 255, 0.8);
+    0 0 1.5lvh rgba(161, 34, 219, 0.5),
+    0 0 2.5lvh rgb(161, 34, 219),
+    0 0 3.5lvh rgba(255, 255, 255, 0.8);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -492,7 +503,7 @@ main {
 
 .back_to_back > div > div {
   color: rgba(161, 34, 219, 0.6);
-  font-size: 52px;
+  font-size: 6.5lvh;
   position: absolute;
   margin: auto;
 }
@@ -550,13 +561,13 @@ main {
 }
 
 .all_clear {
-  color: rgb(226, 186, 9);
+  color: rgb(245, 202, 10);
   font-size: 5lvh;
   font-weight: bolder;
   text-shadow:
-    /* 0 0 2lvh rgba(255, 255, 255, 0.5), */
-    0 0 3lvh rgb(255, 255, 255),
-    0 0 2lvh rgba(255, 255, 255, 0.5);
+    0 0 6lvh rgb(255, 255, 255),
+    0 0 4lvh rgba(255, 255, 255, 0.5),
+    0 0 2lvh rgba(255, 255, 255, 0.4);
   white-space: nowrap;
   position: absolute;
   left: 18%;
@@ -568,5 +579,5 @@ main {
   z-index: -1;
   content: "All Clear!";
   position: absolute;
-  -webkit-text-stroke: 0.8lvh rgb(126, 72, 7);
+  -webkit-text-stroke: 0.8lvh rgb(117, 67, 6);
 }
