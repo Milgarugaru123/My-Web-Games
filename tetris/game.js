@@ -71,7 +71,8 @@ export const gameData = {
   isSideMoved: false,
   isSpinned: false,
   minoDownInterval: 30, // init: 30~50
-  minoSideMoveInterval: 80, // init: 70~80
+  minoSideMoveInterval: 200, // init: 70~80
+  minoSideMoveAcc: 3, // init: 3~5
   bottomDelay: 0,
   maxBottomDelay: 10,
   maxRow: undefined,
@@ -1100,7 +1101,7 @@ const keyPressDown = () => {
   rendMino();
   return false;
 };
-const keyPressLeft = () => {
+const keyPressLeft = (i) => {
   if (checkMoveConflict(`left`)) return;
   gameData.isSideMoved = true;
   scoreData.isT_Spin = false;
@@ -1111,8 +1112,19 @@ const keyPressLeft = () => {
   };
   setMinoRendGrids();
   rendMino();
+  intervalId.leftKey = setTimeout(
+    () => {
+      console.log(
+        gameData.minoSideMoveInterval / (i * gameData.minoSideMoveAcc + 1),
+      );
+      keyPressLeft(i + 1);
+    },
+    Math.round(
+      gameData.minoSideMoveInterval / (i * gameData.minoSideMoveAcc + 1),
+    ),
+  );
 };
-const keyPressRight = () => {
+const keyPressRight = (i) => {
   if (checkMoveConflict(`right`)) return;
   gameData.isSideMoved = true;
   scoreData.isT_Spin = false;
@@ -1123,6 +1135,14 @@ const keyPressRight = () => {
   };
   setMinoRendGrids();
   rendMino();
+  intervalId.leftKey = setTimeout(
+    () => {
+      keyPressRight(i + 1);
+    },
+    Math.round(
+      gameData.minoSideMoveInterval / (i * gameData.minoSideMoveAcc + 1),
+    ),
+  );
 };
 
 const minoDrop = (height) => {
@@ -2175,6 +2195,7 @@ export const toggleRestartBtn = (toggle = `on`) => {
 };
 
 document.addEventListener(`keydown`, (e) => {
+  // console.log(e, e.keyCode);
   if (!gameData.isPlaying && e.key !== `F12`) {
     e.preventDefault();
     return;
@@ -2196,22 +2217,16 @@ document.addEventListener(`keydown`, (e) => {
     case `ArrowLeft`:
       if (keyDatas.leftPressed) break;
       keyDatas.leftPressed = true;
-      clearInterval(intervalId.RightKey);
-      keyPressLeft();
-      intervalId.leftKey = setInterval(() => {
-        keyPressLeft();
-      }, gameData.minoSideMoveInterval);
+      clearTimeout(intervalId.RightKey);
+      keyPressLeft(0);
       break;
 
     case `Right`: // IE/Edge에서 사용되는 값
     case `ArrowRight`:
       if (keyDatas.rightPressed) break;
       keyDatas.rightPressed = true;
-      clearInterval(intervalId.leftKey);
-      keyPressRight();
-      intervalId.rightKey = setInterval(() => {
-        keyPressRight();
-      }, gameData.minoSideMoveInterval);
+      clearTimeout(intervalId.leftKey);
+      keyPressRight(0);
       break;
 
     case `Spacebar`: // 옛날 브라우저가 리턴할 가능성 있음
@@ -2258,13 +2273,13 @@ document.addEventListener(`keyup`, (e) => {
 
     case `Left`: // IE/Edge에서 사용되는 값
     case `ArrowLeft`:
-      clearInterval(intervalId.leftKey);
+      clearTimeout(intervalId.leftKey);
       keyDatas.leftPressed = false;
       break;
 
     case `Right`: // IE/Edge에서 사용되는 값
     case `ArrowRight`:
-      clearInterval(intervalId.rightKey);
+      clearTimeout(intervalId.rightKey);
       keyDatas.rightPressed = false;
       break;
 
