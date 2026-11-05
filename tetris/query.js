@@ -14,19 +14,19 @@ export const tetrisReview = document.querySelector(`.tetris`);
 export const backToBackReview = document.querySelector(`.back_to_back`);
 // export const = document.querySelector(``);
 
-console.log(
-  holdCase,
-  tetrisScreen,
-  nextCase,
-  furtherNextCase,
-  curScore,
-  highScore,
-  spinReview,
-  restartBtn,
-  comboReview,
-  comboValReview,
-  t_SpinReview,
-  t_SpinMiniReview,
-  tetrisReview,
-  backToBackReview,
-);
+// console.log(
+//   holdCase,
+//   tetrisScreen,
+//   nextCase,
+//   furtherNextCase,
+//   curScore,
+//   highScore,
+//   spinReview,
+//   restartBtn,
+//   comboReview,
+//   comboValReview,
+//   t_SpinReview,
+//   t_SpinMiniReview,
+//   tetrisReview,
+//   backToBackReview,
+// );

@@ -89,6 +89,10 @@
   background-color: rgb(161, 34, 219);
 }
 
+.mino_preview {
+  opacity: 0.4;
+}
+
 /* 배경 디자인 */
 main {
   width: 100vw;

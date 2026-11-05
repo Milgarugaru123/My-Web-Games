@@ -124,23 +124,17 @@ export const lineClearScore = (isAllClear) => {
   const baseLineClearScore =
     scoreData.baseScore * 10 * Math.ceil(scoreData.balance / 2);
   const alpha = makeAlpha(baseLineClearScore);
-  console.log(
-    Math.floor(
-      (baseLineClearScore * (isAllClear ? 5 : 1) + alpha) *
-        scoreData.lineCleared *
-        (scoreData.isT_Spin ? (scoreData.isT_Spin === `mini` ? 1.3 : 2) : 1) *
-        (scoreData.isBTB > 1 ? 1.5 : 1) *
-        (1 + 0.1 * ((scoreData.combo > 15 ? 15 : scoreData.combo) - 1)),
-    ),
-  );
   gameData.score += Math.floor(
     (baseLineClearScore * (isAllClear ? 5 : 1) + alpha) *
       scoreData.lineCleared *
       (scoreData.isT_Spin ? (scoreData.isT_Spin === `mini` ? 1.3 : 2) : 1) *
       (scoreData.isBTB > 1 ? 1.5 : 1) *
-      (1 + 0.1 * ((scoreData.combo > 15 ? 15 : scoreData.combo) - 1)),
+      (1 + 0.1 * ((scoreData.combo > 15 ? 15 : scoreData.combo) - 1)) *
+      Math.ceil(scoreData.balance / 2),
   );
   if (isAllClear) {
+    clearTimeout(intervalId.allClearReview);
+    allClearReview.classList.remove(`review_hide`);
     allClearReview.style.transform = reviewRotate(7.5);
     allClearReview.classList.remove(`info_hidden`);
     intervalId.allClearReview = setTimeout(() => {
