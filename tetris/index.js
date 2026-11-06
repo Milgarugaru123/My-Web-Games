@@ -53,6 +53,7 @@ const gamePreview = () => {
 };
 
 const gameStart = () => {
+  scoreData.totalLineCleared = 0;
   scoreData.maxedScoreLen = undefined;
   takeoutNext();
 };
@@ -89,8 +90,23 @@ restartBtn.addEventListener(`click`, (e) => {
 });
 
 /* init */
-
-gameData.highscore = +(localStorage.getItem(`highscore`) ?? 0);
+const prevVersion =
+  localStorage.getItem(`Tetris to Go! version`) ??
+  gameData.version
+    .split(`.`)
+    .map((x, i) => {
+      if (i === 1) return +x - 1;
+      else return x;
+    })
+    .reduce((x, y) => x + `.` + y);
+const versionCompare = (index) =>
+  prevVersion.split(`.`)[index] !== gameData.version.split(`.`)[index];
+if (prevVersion !== gameData.version) {
+  if (versionCompare(0)) localStorage.setItem(`Tetris to Go! highscore`, `0`);
+  if (versionCompare(1)) console.log(`version updated`); // 아직은 뭘 할 지 모르겠음
+  localStorage.setItem(`Tetris to Go! version`, gameData.version);
+}
+gameData.highscore = +(localStorage.getItem(`Tetris to Go! highscore`) ?? 0);
 curScore.innerHTML = `－－`;
 if (gameData.highscore > 0) rendHighscore(gameData.highscore);
 else highScore.innerHTML = `－－`;

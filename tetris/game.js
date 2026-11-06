@@ -54,6 +54,7 @@ export const intervalId = {
   allClearReview: undefined,
 };
 export const gameData = {
+  version: `2.0.0`,
   isPlaying: false,
   highscore: 0,
   score: 0,
@@ -72,7 +73,7 @@ export const gameData = {
   isSideMoved: false,
   isSpinned: false,
   minoDownInterval: 30, // init: 30~50
-  minoSideMoveInterval: 100, // init: 100~200
+  minoSideMoveInterval: 130, // init: 100~200
   minoSideMoveAcc: 1, // init: 1~5
   bottomDelay: 0,
   maxBottomDelay: 10,
@@ -86,16 +87,23 @@ export const gameGridData = new Array(24).fill(0).map((row) => {
     });
 });
 
+// 이거랑 음악 타이밍 조절해야 함 (totalLineCleared 사용)
 const minoFall = () => {
   if (!gameData.isPlaying) return;
   gameData.isSideMoved = false;
   gameData.isSpinned = false;
-  const scoreLen = [...(`` + Math.floor(gameData.score / 100))].length;
-  const alpha =
-    ((scoreLen < 2 ? 0 : (scoreLen - 1) ** 2) * 10 +
-      Math.floor(gameData.score / 10 ** (scoreLen < 2 ? 2 : scoreLen + 1)) *
-        (scoreLen * 2 - 1)) *
-    scoreData.balance;
+  const minBottomSpeed = [500];
+  // [...(`` + Math.floor(gameData.score / 100))].length;
+  const scoreLen =
+    [...String(gameData.score)].length < 5
+      ? 0
+      : [...String(gameData.score)].length - 4;
+  const alpha = 0;
+  // const alpha =
+  //   ((scoreLen < 2 ? 0 : (scoreLen - 1) ** 2) * 10 +
+  //     Math.floor(gameData.score / 10 ** (scoreLen < 2 ? 2 : scoreLen + 1)) *
+  //       (scoreLen * 2 - 1)) *
+  //   scoreData.balance;
   if (
     gameData.initGameSpeed - alpha < gameData.minoDownInterval &&
     !scoreData.maxedScoreLen
@@ -109,54 +117,59 @@ const minoFall = () => {
           10,
         )
       : gameData.initGameSpeed - alpha;
-  intervalId.minoFall = setTimeout(() => {
-    if (keyDatas.downPressed) {
-      if (checkMoveConflict(`down`)) gameData.bottomDelay += 1;
-      if (gameData.minoPos.spinPos.row > gameData.maxRow) {
-        gameData.maxRow = gameData.minoPos.spinPos.row;
-        gameData.bottomDelay = 0;
+  intervalId.minoFall = setTimeout(
+    () => {
+      if (keyDatas.downPressed) {
+        if (checkMoveConflict(`down`)) gameData.bottomDelay += 1;
+        else minBottomSpeed[0] = 0;
+        if (gameData.minoPos.spinPos.row > gameData.maxRow) {
+          gameData.maxRow = gameData.minoPos.spinPos.row;
+          gameData.bottomDelay = 0;
+        }
+        if (gameData.bottomDelay < Math.ceil(gameData.maxBottomDelay / 4))
+          minoFall();
+        else if (
+          gameData.bottomDelay < Math.ceil(gameData.maxBottomDelay / 2) &&
+          (gameData.isSpinned || gameData.isSideMoved)
+        )
+          minoFall();
+        else if (
+          gameData.bottomDelay < gameData.maxBottomDelay &&
+          gameData.isSpinned
+        )
+          minoFall();
+        else {
+          fixCurMino();
+          takeoutNext();
+        }
+      } else {
+        const isConflict = keyPressDown();
+        if (isConflict || gameData.bottomDelay > 0) gameData.bottomDelay += 1;
+        else minBottomSpeed[0] = 0;
+        if (gameData.minoPos.spinPos.row > gameData.maxRow) {
+          gameData.maxRow = gameData.minoPos.spinPos.row;
+          gameData.bottomDelay = 0;
+        }
+        if (gameData.bottomDelay < Math.ceil(gameData.maxBottomDelay / 4))
+          minoFall();
+        else if (
+          gameData.bottomDelay < Math.ceil(gameData.maxBottomDelay / 2) &&
+          (gameData.isSpinned || gameData.isSideMoved)
+        )
+          minoFall();
+        else if (
+          gameData.bottomDelay < gameData.maxBottomDelay &&
+          gameData.isSpinned
+        )
+          minoFall();
+        else {
+          fixCurMino();
+          takeoutNext();
+        }
       }
-      if (gameData.bottomDelay < Math.ceil(gameData.maxBottomDelay / 4))
-        minoFall();
-      else if (
-        gameData.bottomDelay < Math.ceil(gameData.maxBottomDelay / 2) &&
-        (gameData.isSpinned || gameData.isSideMoved)
-      )
-        minoFall();
-      else if (
-        gameData.bottomDelay < gameData.maxBottomDelay &&
-        gameData.isSpinned
-      )
-        minoFall();
-      else {
-        fixCurMino();
-        takeoutNext();
-      }
-    } else {
-      const isConflict = keyPressDown();
-      if (isConflict || gameData.bottomDelay > 0) gameData.bottomDelay += 1;
-      if (gameData.minoPos.spinPos.row > gameData.maxRow) {
-        gameData.maxRow = gameData.minoPos.spinPos.row;
-        gameData.bottomDelay = 0;
-      }
-      if (gameData.bottomDelay < Math.ceil(gameData.maxBottomDelay / 4))
-        minoFall();
-      else if (
-        gameData.bottomDelay < Math.ceil(gameData.maxBottomDelay / 2) &&
-        (gameData.isSpinned || gameData.isSideMoved)
-      )
-        minoFall();
-      else if (
-        gameData.bottomDelay < gameData.maxBottomDelay &&
-        gameData.isSpinned
-      )
-        minoFall();
-      else {
-        fixCurMino();
-        takeoutNext();
-      }
-    }
-  }, interval);
+    },
+    Math.max(interval, minBottomSpeed[0]),
+  );
 };
 
 export const rendNext = () => {
@@ -882,7 +895,11 @@ const rendReview = () => {
   }
   if (scoreData.lineCleared > 0) {
     comboValReview.innerHTML =
-      scoreData.combo >= 15 ? `15 MAX` : scoreData.combo;
+      scoreData.combo >= scoreData.maxCombo
+        ? scoreData.combo === scoreData.maxCombo
+          ? `${scoreData.maxCombo} MAX`
+          : `MAX ＋`
+        : scoreData.combo;
     comboReview.style.transform = reviewRotate(5);
     comboReview.classList.remove(`info_hidden`);
     if (scoreData.lineCleared === 4) {
@@ -2267,12 +2284,10 @@ export const toggleRestartBtn = (toggle = `on`) => {
 };
 
 document.addEventListener(`keydown`, (e) => {
-  if (e.key !== `F12`) {
+  if (!(e.key == `F12` || e.code == `F12`)) {
     e.preventDefault();
   }
   if (!gameData.isPlaying) return;
-  e.preventDefault();
-  /* e.keyCode 로 바꿀 가능성 있음 */
   switch (e.code) {
     case `Down`: // IE/Edge에서 사용되는 값
     case `ArrowDown`:
@@ -2324,15 +2339,13 @@ document.addEventListener(`keydown`, (e) => {
       changeHold();
       break;
 
-    case `F12`:
-      break;
-
     default:
       break;
   }
 });
 
 document.addEventListener(`keyup`, (e) => {
+  if (!gameData.isPlaying) return;
   e.preventDefault();
   switch (e.code) {
     case `Down`: // IE/Edge에서 사용되는 값
@@ -2367,9 +2380,6 @@ document.addEventListener(`keyup`, (e) => {
 
     case keyDatas.hold:
       keyDatas.holdPressed = false;
-      break;
-
-    case `F12`:
       break;
 
     default:
