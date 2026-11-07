@@ -54,7 +54,7 @@ const gamePreview = () => {
 
 const gameStart = () => {
   scoreData.totalLineCleared = 0;
-  scoreData.maxedScoreLen = undefined;
+  scoreData.maxedTotalLineCleared = undefined;
   takeoutNext();
 };
 
@@ -106,7 +106,10 @@ if (prevVersion !== gameData.version) {
   if (versionCompare(1)) console.log(`version updated`); // 아직은 뭘 할 지 모르겠음
   localStorage.setItem(`Tetris to Go! version`, gameData.version);
 }
-gameData.highscore = +(localStorage.getItem(`Tetris to Go! highscore`) ?? 0);
+const prevHighscore = JSON.parse(
+  localStorage.getItem(`Tetris to Go! highscore`),
+);
+gameData.highscore = typeof +prevHighscore !== `number` ? 0 : +prevHighscore;
 curScore.innerHTML = `－－`;
 if (gameData.highscore > 0) rendHighscore(gameData.highscore);
 else highScore.innerHTML = `－－`;

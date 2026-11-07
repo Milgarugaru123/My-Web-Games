@@ -44,6 +44,7 @@ const keyDatas = {
   holdPressed: false,
 };
 export const intervalId = {
+  bgmChange: { fadeIn: undefined, change: undefined },
   leftKey: undefined,
   rightKey: undefined,
   downKey: undefined,
@@ -54,7 +55,7 @@ export const intervalId = {
   allClearReview: undefined,
 };
 export const gameData = {
-  version: `2.0.0`,
+  version: `2.1.0`,
   isPlaying: false,
   highscore: 0,
   score: 0,
@@ -87,36 +88,37 @@ export const gameGridData = new Array(24).fill(0).map((row) => {
     });
 });
 
-// 이거랑 음악 타이밍 조절해야 함 (totalLineCleared 사용)
 const minoFall = () => {
   if (!gameData.isPlaying) return;
   gameData.isSideMoved = false;
   gameData.isSpinned = false;
   const minBottomSpeed = [500];
-  // [...(`` + Math.floor(gameData.score / 100))].length;
-  const scoreLen =
-    [...String(gameData.score)].length < 5
-      ? 0
-      : [...String(gameData.score)].length - 4;
-  const alpha = 0;
-  // const alpha =
-  //   ((scoreLen < 2 ? 0 : (scoreLen - 1) ** 2) * 10 +
-  //     Math.floor(gameData.score / 10 ** (scoreLen < 2 ? 2 : scoreLen + 1)) *
-  //       (scoreLen * 2 - 1)) *
-  //   scoreData.balance;
+  const alphaLen =
+    Math.floor(scoreData.totalLineCleared / (scoreData.scoreAccLen * 10)) +
+    Math.ceil(scoreData.balance / 4);
+  const alpha = Math.floor(
+    Math.ceil((scoreData.totalLineCleared * 2) / scoreData.scoreAccLen) *
+      alphaLen *
+      Math.ceil(scoreData.balance / 2),
+  );
   if (
     gameData.initGameSpeed - alpha < gameData.minoDownInterval &&
-    !scoreData.maxedScoreLen
+    !scoreData.maxedTotalLineCleared
   )
-    scoreData.maxedScoreLen = scoreLen;
+    scoreData.maxedTotalLineCleared = scoreData.totalLineCleared;
   const interval =
     gameData.initGameSpeed - alpha < gameData.minoDownInterval
       ? Math.max(
           gameData.minoDownInterval -
-            (scoreLen - scoreData.maxedScoreLen) * scoreData.balance,
+            Math.floor(
+              (alphaLen - scoreData.maxedTotalLineCleared) /
+                (scoreData.scoreAccLen * 5),
+            ) *
+              Math.ceil(scoreData.balance / 2),
           10,
         )
       : gameData.initGameSpeed - alpha;
+  console.log(interval, scoreData.totalLineCleared);
   intervalId.minoFall = setTimeout(
     () => {
       if (keyDatas.downPressed) {
@@ -196,6 +198,7 @@ export const rendHold = () => {
 };
 
 const rendPreview = (row, grid) => {
+  if (row < 0 || row > 19) return;
   if (gameGridData[row + 4][grid].mino) return;
   gridDatas[row][grid].classList.add(`mino_preview`);
   switch (gameData.curMino) {
@@ -786,9 +789,16 @@ const setMinoRendGrids = () => {
 
 const gameOver = () => {
   gameData.isPlaying = false;
+  clearTimeout(intervalId.bgmChange.fadeIn);
+  clearTimeout(intervalId.bgmChange.change);
+  bgmFadeOut(bgm.next, 0, 3000);
+  if (!(bgm.cur === bgm.next)) bgmFadeOut(bgm.cur, 0, 3000);
   if (gameData.score > gameData.highscore) gameData.highscore = gameData.score;
   rendHighscore(gameData.highscore);
-  localStorage.setItem(`highscore`, JSON.stringify(gameData.highscore));
+  localStorage.setItem(
+    `Tetris to Go! highscore`,
+    JSON.stringify(gameData.highscore),
+  );
   window.alert(`Game Over!`);
   toggleRestartBtn();
 };
@@ -978,11 +988,11 @@ const checkRowComplete = () => {
     if (scoreData.lineCleared === 4 || scoreData.isT_Spin) scoreData.isBTB += 1;
     else scoreData.isBTB = 0;
     lineClearScore(!(gridFilled - scoreData.lineCleared * 10));
+    bgmCrossFade(3000);
   } else scoreData.combo = 0;
   rendReview();
   scoreData.tempScore = gameData.score;
   scoreData.isT_Spin = false;
-  bgmCrossFade(3000);
 };
 
 const minoSpawn = () => {
@@ -2394,26 +2404,45 @@ const bgmList = [
   { src: `./bgm/Moonside Howl (Kyatto).mp3`, vol: 0.7 },
   { src: `./bgm/エンドロールはつづいてく。.mp3`, vol: 0.4 },
 ];
-const bgm = [new Audio(bgmList[0].src)];
+const bgm = { cur: new Audio(bgmList[0].src), next: undefined };
 const bgmFade = (bgm, vol, fadeTime) => {
   if (fadeTime > 0) {
     bgm.volume += ((vol - bgm.volume) * 10) / fadeTime;
-    setTimeout(() => {
-      bgmFade(bgm, vol, fadeTime - 10);
-    }, 10);
   } else {
     bgm.volume = vol;
     if (vol === 0) bgm.pause();
   }
 };
+const bgmFadeIn = (bgm, vol, fadeTime) => {
+  bgmFade(bgm, vol, fadeTime);
+  if (fadeTime < 10) return;
+  intervalId.bgmChange.fadeIn = setTimeout(() => {
+    bgmFadeIn(bgm, vol, fadeTime - 10);
+  }, 10);
+};
+const bgmFadeOut = (bgm, vol, fadeTime) => {
+  bgmFade(bgm, vol, fadeTime);
+  if (fadeTime < 10) return;
+  setTimeout(() => {
+    bgmFadeOut(bgm, vol, fadeTime - 10);
+  }, 10);
+};
 export const bgmStart = (fadeTime) => {
   gameData.curBgm = 0;
-  bgm[0].volume = 0;
-  bgm[0].autoplay = false;
-  bgm[0].loop = true;
-  bgm[0].load();
-  bgm[0].play();
-  bgmFade(bgm[0], bgmList[0].vol, fadeTime);
+  bgm.next = new Audio(bgmList[gameData.curBgm].src);
+  bgm.next.volume = 0;
+  bgm.next.autoplay = false;
+  bgm.next.loop = true;
+  bgm.next.load();
+  bgm.next.play();
+  intervalId.bgmChange.fadeIn = bgmFadeIn(
+    bgm.next,
+    bgmList[gameData.curBgm].vol,
+    fadeTime,
+  );
+  intervalId.bgmChange.change = setTimeout(() => {
+    bgm.cur = bgm.next;
+  }, fadeTime + 1000);
 };
 const bgmCrossFade = (fadeTime) => {
   Array(bgmList.length)
@@ -2422,20 +2451,27 @@ const bgmCrossFade = (fadeTime) => {
       if (
         i !== bgmList.length &&
         gameData.curBgm !== i &&
-        gameData.score >= scoreData.baseScore ** scoreData.balance * i ** 2 &&
-        gameData.score < scoreData.baseScore ** scoreData.balance * (i + 1) ** 2
+        gameData.score >=
+          scoreData.baseScore ** scoreData.scoreAccLen *
+            i ** Math.ceil(scoreData.balance / 2) &&
+        gameData.score <
+          scoreData.baseScore ** scoreData.scoreAccLen *
+            (i + 1) ** Math.ceil(scoreData.balance / 2)
       ) {
+        clearTimeout(intervalId.bgmChange.fadeIn);
+        clearTimeout(intervalId.bgmChange.change);
+        bgm.cur = bgm.next;
         gameData.curBgm = i;
-        const bgmNext = new Audio(bgmList[i].src);
-        bgmNext.volume = 0;
-        bgmNext.autoplay = false;
-        bgmNext.loop = true;
-        bgmNext.load();
-        bgmNext.play();
-        bgmFade(bgm[0], 0, fadeTime);
-        bgmFade(bgmNext, bgmList[i].vol, fadeTime);
-        setTimeout(() => {
-          bgm[0] = bgmNext;
+        bgm.next = new Audio(bgmList[i].src);
+        bgm.next.volume = 0;
+        bgm.next.autoplay = false;
+        bgm.next.loop = true;
+        bgm.next.load();
+        bgm.next.play();
+        bgmFadeOut(bgm.cur, 0, fadeTime);
+        bgmFadeIn(bgm.next, bgmList[i].vol, fadeTime);
+        intervalId.bgmChange.change = setTimeout(() => {
+          bgm.cur = bgm.next;
         }, fadeTime + 1000);
       }
     });
