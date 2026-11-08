@@ -55,7 +55,7 @@ export const intervalId = {
   allClearReview: undefined,
 };
 export const gameData = {
-  version: `2.1.0`,
+  version: `2.1.1`,
   isPlaying: false,
   highscore: 0,
   score: 0,
@@ -94,7 +94,7 @@ const minoFall = () => {
   gameData.isSpinned = false;
   const minBottomSpeed = [500];
   const alphaLen =
-    Math.floor(scoreData.totalLineCleared / (scoreData.scoreAccLen * 10)) +
+    Math.floor(scoreData.totalLineCleared / (scoreData.scoreAccLen * 7)) + // init 5~10
     Math.ceil(scoreData.balance / 4);
   const alpha = Math.floor(
     Math.ceil((scoreData.totalLineCleared * 2) / scoreData.scoreAccLen) *
@@ -111,7 +111,7 @@ const minoFall = () => {
       ? Math.max(
           gameData.minoDownInterval -
             Math.floor(
-              (alphaLen - scoreData.maxedTotalLineCleared) /
+              (scoreData.totalLineCleared - scoreData.maxedTotalLineCleared) /
                 (scoreData.scoreAccLen * 5),
             ) *
               Math.ceil(scoreData.balance / 2),
