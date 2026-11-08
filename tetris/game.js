@@ -118,7 +118,6 @@ const minoFall = () => {
           10,
         )
       : gameData.initGameSpeed - alpha;
-  console.log(interval, scoreData.totalLineCleared);
   intervalId.minoFall = setTimeout(
     () => {
       if (keyDatas.downPressed) {
