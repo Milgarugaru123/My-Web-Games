@@ -13,6 +13,14 @@ import {
   // t_SpinMiniReview,
   // tetrisReview,
   // backToBackReview,
+  // linesClearedCount,
+  // gameOverScreen,
+  // comboHighCount,
+  // allClearCount,
+  // tetrisCount,
+  // t_SpinCount,
+  // t_SpinMiniCount,
+  // backToBackCount,
 } from "./query.js";
 import {
   // minoDatas,
@@ -53,7 +61,13 @@ const gamePreview = () => {
 };
 
 const gameStart = () => {
+  scoreData.tetrisCount = 0;
+  scoreData.t_SpinCount = 0;
+  scoreData.t_SpinMiniCount = 0;
+  scoreData.backToBackCount = 0;
+  scoreData.allClearCount = 0;
   scoreData.totalLineCleared = 0;
+  scoreData.comboHigh = 0;
   scoreData.maxedTotalLineCleared = undefined;
   takeoutNext();
 };

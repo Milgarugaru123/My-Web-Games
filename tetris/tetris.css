@@ -592,3 +592,95 @@ main {
   position: absolute;
   -webkit-text-stroke: 0.8lvh rgb(117, 67, 6);
 }
+
+.game_over_screen {
+  color: black;
+  font-size: 2lvh;
+  width: 80%;
+  min-width: 32lvh;
+  max-width: 36lvh;
+  height: fit-content;
+  border: 0.7lvh solid rgb(3, 202, 186);
+  border-radius: 2.5lvh;
+  display: flex;
+  flex-direction: column;
+  letter-spacing: 0.2em;
+  background-color: rgb(249, 240, 255);
+  padding-top: 1.5lvh;
+  padding-bottom: 3lvh;
+  gap: 1.5lvh;
+  position: absolute;
+  top: calc(50% - 12.5em);
+  left: calc(50% - 8.95em);
+  z-index: 20;
+  pointer-events: none;
+}
+
+.game_over_show {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 5lvh;
+  padding-right: 6.5lvh;
+}
+
+.game_over_screen > span {
+  font-size: 2.8lvh;
+  font-weight: bolder;
+  white-space: nowrap;
+  text-align: center;
+  padding-bottom: 0.5lvh;
+}
+
+.game_over_screen > div > div {
+  font-weight: bolder;
+  position: relative;
+}
+
+.game_over_screen > div > span {
+  font-size: 2.2lvh;
+  font-weight: bold;
+}
+
+.game_over_hidden {
+  display: none;
+}
+
+.lines_cleared > div {
+  color: rgb(86, 175, 168);
+  font-size: 2.2lvh;
+  letter-spacing: 0.5em;
+  text-align: start;
+  text-decoration-line: underline overline;
+  text-underline-offset: 0.5em;
+  text-decoration-inset: 0 0.5em;
+  padding-block: 1lvh;
+}
+
+.all_clear_over {
+  color: rgb(245, 202, 10);
+  font-size: 2.2lvh;
+  font-weight: bolder;
+  letter-spacing: 0.2em;
+  text-shadow:
+    0 0 6lvh rgb(255, 255, 255),
+    0 0 4lvh rgba(255, 255, 255, 0.5),
+    0 0 2lvh rgba(255, 255, 255, 0.4);
+  white-space: nowrap;
+  padding-block: 1lvh 1.5lvh;
+  position: relative;
+}
+
+.all_clear_over::before {
+  z-index: -1;
+  content: "All Clear!";
+  letter-spacing: 0.22em;
+  position: absolute;
+  -webkit-text-stroke: 0.6lvh rgb(117, 67, 6);
+}
+
+.all_clear_count {
+  color: black;
+  text-shadow: none;
+}

@@ -13,6 +13,14 @@ import {
   t_SpinMiniReview,
   tetrisReview,
   backToBackReview,
+  gameOverScreen,
+  linesClearedCount,
+  comboHighCount,
+  allClearCount,
+  tetrisCount,
+  t_SpinCount,
+  t_SpinMiniCount,
+  backToBackCount,
 } from "./query.js";
 import {
   minoDatas,
@@ -55,7 +63,7 @@ export const intervalId = {
   allClearReview: undefined,
 };
 export const gameData = {
-  version: `2.1.1`,
+  version: `2.2.0`,
   isPlaying: false,
   highscore: 0,
   score: 0,
@@ -799,6 +807,14 @@ const gameOver = () => {
     JSON.stringify(gameData.highscore),
   );
   window.alert(`Game Over!`);
+  linesClearedCount.innerHTML = scoreData.totalLineCleared;
+  comboHighCount.innerHTML = scoreData.comboHigh;
+  allClearCount.innerHTML = scoreData.allClearCount;
+  tetrisCount.innerHTML = scoreData.tetrisCount;
+  t_SpinCount.innerHTML = scoreData.t_SpinCount;
+  t_SpinMiniCount.innerHTML = scoreData.t_SpinMiniCount;
+  backToBackCount.innerHTML = scoreData.backToBackCount;
+  gameOverScreen.classList.remove(`game_over_hidden`);
   toggleRestartBtn();
 };
 
@@ -984,8 +1000,17 @@ const checkRowComplete = () => {
     .reduce((x, y) => x + y);
   if (scoreData.lineCleared > 0) {
     scoreData.combo += 1;
-    if (scoreData.lineCleared === 4 || scoreData.isT_Spin) scoreData.isBTB += 1;
-    else scoreData.isBTB = 0;
+    if (scoreData.combo > scoreData.comboHigh)
+      scoreData.comboHigh = scoreData.combo;
+    if (scoreData.lineCleared === 4) {
+      scoreData.tetrisCount += 1;
+      scoreData.isBTB += 1;
+      if (scoreData.isBTB > 1) scoreData.backToBackCount += 1;
+    } else if (scoreData.isT_Spin) {
+      scoreData.t_SpinCount += 1;
+      scoreData.isBTB += 1;
+      if (scoreData.isBTB > 1) scoreData.backToBackCount += 1;
+    } else scoreData.isBTB = 0;
     lineClearScore(!(gridFilled - scoreData.lineCleared * 10));
     bgmCrossFade(3000);
   } else scoreData.combo = 0;

@@ -13,6 +13,14 @@ import {
   // t_SpinMiniReview,
   // tetrisReview,
   // backToBackReview,
+  // linesClearedCount,
+  // gameOverScreen,
+  // comboHighCount,
+  // allClearCount,
+  // tetrisCount,
+  // t_SpinCount,
+  // t_SpinMiniCount,
+  // backToBackCount,
 } from "./query.js";
 import {
   // rendNext,
@@ -58,10 +66,16 @@ export const scoreData = {
   lineCleared: 0,
   totalLineCleared: 0,
   maxedTotalLineCleared: undefined,
+  allClearCount: 0,
+  tetrisCount: 0,
+  t_SpinCount: 0,
+  t_SpinMiniCount: 0,
+  backToBackCount: 0,
   isT_Spin: false,
   isBTB: 0,
   combo: 0,
   maxCombo: 10,
+  comboHigh: 0,
   comboAcc: 5,
 };
 
@@ -146,6 +160,7 @@ export const lineClearScore = (isAllClear) => {
   gameData.score += tempScore;
   if (isAllClear) {
     clearTimeout(intervalId.allClearReview);
+    scoreData.allClearCount += 1;
     allClearReview.classList.remove(`review_hide`);
     allClearReview.style.transform = reviewRotate(7.5);
     allClearReview.classList.remove(`info_hidden`);
