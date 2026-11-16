@@ -1,8 +1,6 @@
+import CardInner from "./CardInner";
 import "./cards.css";
-
-type CardShapes = `diamond` | `heart` | `clover` | `spade`;
-type CardVals = `A` | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | `J` | `Q` | `K`;
-type Cards = { shape: CardShapes; val: CardVals };
+import { CardShapes, CardVals, Cards } from "./cardType";
 
 const cardShapes: Readonly<CardShapes>[] = [
   "diamond",
@@ -50,7 +48,8 @@ const Card = () => {
                 key={`${card.shape}-${card.val}`}
                 className={`card_frame mx-auto val_${card.val}`}
               >
-                <div className={`shape_${card.shape}`}></div>
+                <CardInner shape={card.shape} val={card.val} />
+                {/* <div className={`shape_${card.shape}`}></div> */}
               </div>
             );
           });

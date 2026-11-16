@@ -2,7 +2,9 @@ import Link from "next/link";
 
 const Header = () => {
   return (
-    <header className={`w-full py-3 border-b-10 border-[#5a3a27] sticky top-0`}>
+    <header
+      className={`w-full py-3 border-b-10 border-[#5a3a27] bg-[#351500] sticky top-0 z-50`}
+    >
       <nav
         className={`text-2xl w-full max-w-[80lvw] mx-auto flex justify-between items-center`}
       >
