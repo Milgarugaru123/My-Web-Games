@@ -13,4 +13,4 @@ export type CardVals =
   | `J`
   | `Q`
   | `K`;
-export type Cards = { shape: CardShapes; val: CardVals };
+export type TCard = { shape: CardShapes; val: CardVals };
