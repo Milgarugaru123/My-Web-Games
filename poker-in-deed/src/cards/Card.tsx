@@ -46,7 +46,7 @@ const Card = () => {
             return (
               <div
                 key={`${card.shape}-${card.val}`}
-                className={`card_frame mx-auto val_${card.val}`}
+                className={`card_frame mx-auto val_${card.val} relative`}
               >
                 <CardInner shape={card.shape} val={card.val} />
               </div>
