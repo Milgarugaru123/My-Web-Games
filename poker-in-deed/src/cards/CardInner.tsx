@@ -1,14 +1,32 @@
 import { CardShapes, CardVals, TCard } from "./cardType";
 
-type MidShape = { top: boolean; mid: boolean; bottom: boolean };
+type MidShape = {
+  top: boolean;
+  mid: boolean;
+  bottom: boolean;
+};
 
-const makeMidShape = (shape: CardShapes, mid: keyof MidShape) => {
+const makeMidShape = (
+  shape: CardShapes,
+  mid: keyof MidShape | `topMid` | `bottomMid`,
+) => {
   switch (mid) {
     case "top":
       return (
         <>
           <div
-            className={`w-[30%] aspect-square p-[6%] absolute inset-x-[35%] inset-y-[22%]`}
+            className={`w-[30%] aspect-square p-[6%] absolute inset-x-[35%] inset-y-[20%]`}
+          >
+            <div className={`shape_${shape}`}></div>
+          </div>
+        </>
+      );
+
+    case "topMid":
+      return (
+        <>
+          <div
+            className={`w-[30%] aspect-square p-[6%] absolute inset-x-[35%] inset-y-[24%]`}
           >
             <div className={`shape_${shape}`}></div>
           </div>
@@ -26,11 +44,23 @@ const makeMidShape = (shape: CardShapes, mid: keyof MidShape) => {
         </>
       );
 
+    case "bottomMid":
+      return (
+        <>
+          <div
+            className={`w-[30%] aspect-square p-[6%] absolute inset-x-[35%] inset-y-[57%]
+              shape_flip`}
+          >
+            <div className={`shape_${shape}`}></div>
+          </div>
+        </>
+      );
+
     case "bottom":
       return (
         <>
           <div
-            className={`w-[30%] aspect-square p-[6%] absolute inset-x-[35%] inset-y-[60%] shape_flip`}
+            className={`w-[30%] aspect-square p-[6%] absolute inset-x-[35%] inset-y-[61%] shape_flip`}
           >
             <div className={`shape_${shape}`}></div>
           </div>
@@ -120,8 +150,8 @@ const CardInner = ({ shape, val }: TCard) => {
                 </div>
               );
             })}
-          {isMidExist.top ? makeMidShape(shape, `top`) : <></>}
-          {isMidExist.bottom ? makeMidShape(shape, `bottom`) : <></>}
+          {isMidExist.top ? makeMidShape(shape, `topMid`) : <></>}
+          {isMidExist.bottom ? makeMidShape(shape, `bottomMid`) : <></>}
         </div>
       );
 

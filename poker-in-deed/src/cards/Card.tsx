@@ -1,6 +1,6 @@
 import CardInner from "./CardInner";
 import "./cards.css";
-import { CardShapes, CardVals } from "./cardType";
+import { CardShapes, CardVals, TCard } from "./cardType";
 
 const cardShapes: Readonly<CardShapes>[] = [
   "diamond",
@@ -24,8 +24,35 @@ const cardVals: Readonly<CardVals>[] = [
   `K`,
 ];
 
+const makeSideShape = ({ shape, val }: TCard) => {
+  return (
+    <>
+      <div
+        className={`w-[22%] aspect-square p-[6%] absolute inset-x-[-1%] inset-y-[-2%] flex flex-col items-center`}
+      >
+        <div
+          className={`text-[2cqi] font-bold tracking-tight ${shape == `diamond` || shape == `heart` ? `text-red-500` : `text-black`}`}
+        >
+          {val}
+        </div>
+        <div className={`shape_${shape}`}></div>
+      </div>
+      <div
+        className={`w-[22%] aspect-square p-[6%] absolute inset-x-[79%] inset-y-[75.5%] flex flex-col items-center shape_flip`}
+      >
+        <div
+          className={`text-[2cqi] font-bold tracking-tight ${shape == `diamond` || shape == `heart` ? `text-red-500` : `text-black`}`}
+        >
+          {val}
+        </div>
+        <div className={`shape_${shape}`}></div>
+      </div>
+    </>
+  );
+};
+
 const Card = () => {
-  const trumpCards: Cards[][] = Array(cardShapes.length)
+  const trumpCards: TCard[][] = Array(cardShapes.length)
     .fill(0)
     .map((_, shape) => {
       return Array(cardVals.length)
@@ -49,6 +76,7 @@ const Card = () => {
                 className={`card_frame mx-auto val_${card.val} relative`}
               >
                 <CardInner shape={card.shape} val={card.val} />
+                {makeSideShape({ shape: card.shape, val: card.val })}
               </div>
             );
           });
