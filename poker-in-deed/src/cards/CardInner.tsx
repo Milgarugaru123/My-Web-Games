@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { CardShapes, CardVals, TCard } from "./cardType";
 
 type MidShape = {
@@ -98,6 +99,7 @@ const CardInner = ({ shape, val }: TCard) => {
             .map((card, i) => {
               return (
                 <div
+                  key={i}
                   className={`w-[30%] aspect-square ${i >= 1 ? `shape_flip` : ``}`}
                 >
                   <div className={`shape_${shape}`}></div>
@@ -120,6 +122,7 @@ const CardInner = ({ shape, val }: TCard) => {
             .map((card, i) => {
               return (
                 <div
+                  key={i}
                   className={`w-[30%] aspect-square ${i >= 2 ? `shape_flip` : ``}`}
                 >
                   <div className={`shape_${shape}`}></div>
@@ -144,6 +147,7 @@ const CardInner = ({ shape, val }: TCard) => {
             .map((card, i) => {
               return (
                 <div
+                  key={i}
                   className={`w-[30%] aspect-square ${i >= 4 ? `shape_flip` : ``}`}
                 >
                   <div className={`shape_${shape}`}></div>
@@ -171,6 +175,7 @@ const CardInner = ({ shape, val }: TCard) => {
             .map((card, i) => {
               return (
                 <div
+                  key={i}
                   className={`w-[30%] aspect-square ${i >= 4 ? `shape_flip` : ``}`}
                 >
                   <div className={`shape_${shape}`}></div>
@@ -186,7 +191,17 @@ const CardInner = ({ shape, val }: TCard) => {
     case `J`:
     case `Q`:
     case `K`:
-      return <div className={`shape_${shape} p-10`}></div>;
+      return (
+        <div className={`w-full h-full p-[20%] flex flex-col justify-center`}>
+          <Image
+            width={10000}
+            height={10000}
+            src={`/card_faces/${shape}_${val}.png`}
+            alt={`${shape} ${val}`}
+            className={`shadow-lg ${shape == `diamond` || shape == `heart` ? `shadow-red-400` : `shadow-gray-600`}`}
+          />
+        </div>
+      );
   }
 };
 
