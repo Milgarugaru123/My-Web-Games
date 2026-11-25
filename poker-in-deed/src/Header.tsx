@@ -11,9 +11,11 @@ const Header = () => {
         <div className={`whitespace-nowrap`}>
           <Link href={`/`}>Poker in Deed!</Link>
         </div>
-        <div className={`flex gap-[3%] whitespace-nowrap`}>
+        <div className={`flex gap-[3%] whitespace-nowrap items-center`}>
           <Link href={`/Five_Draw`}>Five Card Draw</Link>
+          <span>|</span>
           <Link href={`/Seven_Stud`}>Seven Card Stud</Link>
+          <span>|</span>
           <Link href={`/Texas_Holdem`}>Texas Hold'em</Link>
         </div>
       </nav>
