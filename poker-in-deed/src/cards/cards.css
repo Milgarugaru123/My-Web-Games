@@ -147,9 +147,20 @@
   border-radius: 1.3cqi;
   background-color: rgb(235, 235, 235);
   background-image:
-    linear-gradient(rgb(194, 78, 209) 2px, transparent 1px),
-    linear-gradient(90deg, rgb(194, 78, 209) 2px, transparent 1px);
-  background-size: 20% 12.5%;
+    linear-gradient(
+      to left top,
+      transparent calc(50% - 1px),
+      rgb(194, 78, 209) 51%,
+      transparent calc(50% + 1px)
+    ),
+    linear-gradient(
+      to right top,
+      transparent calc(50% - 1px),
+      rgb(194, 78, 209) 51%,
+      transparent calc(50% + 1px)
+    );
+  background-size: 15% 12.5%;
   padding: 10%;
   background-clip: content-box;
+  background-position-x: 5.5%;
 }

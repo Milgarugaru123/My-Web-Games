@@ -24,11 +24,11 @@ const cardVals: Readonly<CardVals>[] = [
   `K`,
 ];
 
-const makeSideShape = ({ shape, val }: TCard) => {
+export const makeSideShape = ({ shape, val }: TCard) => {
   return (
     <>
       <div
-        className={`w-[22%] aspect-square p-[6%] absolute inset-x-[-1%] inset-y-[-2%] flex flex-col items-center`}
+        className={`w-[22%] aspect-square p-[6%] absolute left-[-1%] top-[-2%] flex flex-col items-center`}
       >
         <div
           className={`text-[2cqi] font-bold tracking-tight ${shape == `diamond` || shape == `heart` ? `text-red-500` : `text-black`}`}
@@ -38,7 +38,7 @@ const makeSideShape = ({ shape, val }: TCard) => {
         <div className={`shape_${shape}`}></div>
       </div>
       <div
-        className={`w-[22%] aspect-square p-[6%] absolute inset-x-[79%] inset-y-[75.5%] flex flex-col items-center shape_flip`}
+        className={`w-[22%] aspect-square p-[6%] absolute right-[-1%] bottom-[-2%] flex flex-col items-center shape_flip`}
       >
         <div
           className={`text-[2cqi] font-bold tracking-tight ${shape == `diamond` || shape == `heart` ? `text-red-500` : `text-black`}`}
@@ -62,7 +62,6 @@ const Card = () => {
         });
     });
 
-  console.log(trumpCards);
   return (
     <>
       <div
@@ -76,7 +75,7 @@ const Card = () => {
                 className={`card_frame mx-auto val_${card.val} relative`}
               >
                 <CardInner shape={card.shape} val={card.val} />
-                {makeSideShape({ shape: card.shape, val: card.val })}
+                {makeSideShape(card)}
               </div>
             );
           });
